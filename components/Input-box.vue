@@ -19,16 +19,20 @@ const props = defineProps({
     required: true,
   },
 });
+
+const attrs = useAttrs();
 </script>
 
 <template>
   <div class="w-md">
-    <label class="block text-2xl font-medium text-black">{{ label }}</label>
+    <label class="block text-2xl font-medium text-black mt-5">{{
+      label
+    }}</label>
     <input
       :value="inputValue"
       :type="type"
       :placeholder="placeholder"
-      class="block w-full border border-gray-300 rounded-xl p-2 mt-3 text-sm px-3"
+      class="block w-full border border-gray-300 rounded-xl py-3 mt-3 text-sm px-3"
     />
   </div>
 </template>

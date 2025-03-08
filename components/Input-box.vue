@@ -1,13 +1,13 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   label: {
     type: String,
     required: true,
   },
-  inputValue: {
-    type: String,
+  modelValue: {
+    ptype: String,
     required: true,
   },
   type: {
@@ -20,7 +20,7 @@ const props = defineProps({
   },
 });
 
-const attrs = useAttrs();
+const emit = defineEmits(["update:modelValue"]);
 </script>
 
 <template>
@@ -29,7 +29,8 @@ const attrs = useAttrs();
       label
     }}</label>
     <input
-      :value="inputValue"
+      :value="modelValue"
+      @input="emit('update:modelValue', $event.target.value)"
       :type="type"
       :placeholder="placeholder"
       class="block w-full border border-gray-300 rounded-xl py-3 mt-3 text-sm px-3"

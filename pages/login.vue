@@ -1,12 +1,46 @@
 <script setup>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import Cookies from "js-cookie"; // Import js-cookie
 
-const email = ref("");
+const username = ref("");
 const password = ref("");
 const router = useRouter();
 
-const navigateToHome = () => {
-  router.push("/");
+const login = async () => {
+  try {
+    console.log("Login Data:", {
+      username: username.value,
+      password: password.value,
+    });
+
+    const response = await fetch(
+      "https://3fc2-182-253-98-194.ngrok-free.app/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify({
+          username: username.value,
+          password: password.value,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Login failed!");
+    }
+    Cookies.set("token", result.token, { expires: 1 });
+    alert("Login successful!");
+    router.push("/");
+  } catch (error) {
+    console.error("Error login:", error);
+    alert(error.message || "An error occurred while login");
+  }
 };
 </script>
 
@@ -15,18 +49,20 @@ const navigateToHome = () => {
     <template #form>
       <p class="text-5xl font-semibold text-[#F97474] mb-20">Login</p>
       <input-box
-        label="Email or Username"
-        :inputValue="email"
-        :type="'email'"
-        :placeholder="'Enter your email'"
+        label="Username"
+        v-model="username"
+        :type="'text'"
+        :placeholder="'Enter your username'"
       ></input-box>
+
       <input-box
         label="Password"
-        :inputValue="password"
+        v-model="password"
         :type="'password'"
-        :placeholder="'Enter your email'"
+        :placeholder="'Enter your password'"
       ></input-box>
-      <Button class="cursor-pointer" buttonText="Login" @click="navigateToHome">
+
+      <Button class="cursor-pointer" buttonText="Login" @click="login">
       </Button>
       <p class="mt-5">
         Don't have an account?

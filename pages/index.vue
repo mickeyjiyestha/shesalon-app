@@ -233,76 +233,7 @@ onMounted(() => {
       </div>
     </header>
 
-    <div class="text-center mb-20 md:mb-30 fade-in px-4 md:px-0">
-      <p class="text-xl md:text-2xl text-[#696984]">
-        Top Beauty Brands for a Luxurious Experience
-      </p>
-      <div class="max-w-5xl mx-auto overflow-hidden relative">
-        <div class="flex animate-scroll space-x-8 py-8">
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/lancome-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/makarizo-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/matrix-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/msglow-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/cosrx-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/cerave-logo.png"
-            alt=""
-          />
-
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/lancome-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/makarizo-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/matrix-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/msglow-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/cosrx-logo.png"
-            alt=""
-          />
-          <img
-            class="w-24 md:w-40 h-24 md:h-40 object-contain transform hover:scale-110 transition-all duration-300 ease-out hover:shadow-lg"
-            src="~/assets/images/cerave-logo.png"
-            alt=""
-          />
-        </div>
-      </div>
-    </div>
+    <Brands></Brands>
 
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-10">
@@ -324,30 +255,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <div
-      class="flex flex-col md:flex-row items-center justify-center mb-40 md:mb-60 px-4 md:px-0"
-    >
-      <div class="mx-0 md:mx-55 scale-in mb-8 md:mb-0">
-        <img
-          src="~/assets/images/owner.png"
-          alt=""
-          class="transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl rounded-lg"
-        />
-        <p class="text-center md:text-left md:ml-10 mt-5 text-[#696984]">
-          Ibu Henry
-        </p>
-      </div>
-      <div class="slide-in from-right px-4 md:px-0">
-        <p class="text-lg md:text-xl font-regular max-w-xl text-[#696984]">
-          She Salon was born from a deep passion for beauty, self-care, and
-          helping others feel their best. As a solo beauty professional, I
-          created this space to provide high-quality, personalized services in a
-          comfortable and welcoming environment. With years of experience and a
-          dedication to continuous learning, I strive to offer expert care
-          tailored to each client's unique needs.
-        </p>
-      </div>
-    </div>
+    <Founder></Founder>
 
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-20 md:mb-30">
@@ -359,172 +267,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <div
-      class="flex flex-col md:flex-row justify-center mb-20 md:mb-50 px-4 md:px-0"
-    >
-      <div class="slide-in from-left mb-8 md:mb-0">
-        <img
-          class="w-full md:w-120 md:mr-45 rounded-2xl transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl"
-          src="~/assets/images/haircut.jpg"
-          alt=""
-        />
-      </div>
-      <div class="slide-in from-right">
-        <p class="text-3xl md:text-4xl font-semibold max-w-xl px-2">
-          Precision
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Haircut</span
-          >
-          & Personalized
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Styling</span
-          >
-        </p>
-        <p
-          class="text-lg md:text-xl font-regular max-w-md px-3 mt-6 md:mt-10 text-[#696984]"
-        >
-          Get a perfectly tailored haircut and style that complements your face
-          shape and personality. Our expert stylists ensure a clean, precise
-          finish, leaving your hair looking fresh, stylish, and easy to manage.
-        </p>
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col-reverse md:flex-row justify-center mb-20 md:mb-30 px-4 md:px-0"
-    >
-      <div class="slide-in from-left mt-8 md:mt-0">
-        <p class="text-3xl md:text-4xl font-semibold max-w-xl px-2 md:px-20">
-          Vibrant hair
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Coloring</span
-          >
-          &
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Highlights</span
-          >
-        </p>
-        <p
-          class="text-lg md:text-xl font-regular max-w-xl px-2 md:px-20 mt-6 md:mt-10 text-[#696984]"
-        >
-          Enhance your hair with stunning color transformations. From subtle
-          highlights to full-color makeovers, we use high-quality products to
-          create rich, long-lasting shades that bring out the best in your hair.
-        </p>
-      </div>
-      <div class="slide-in from-right">
-        <img
-          class="w-full md:w-120 rounded-2xl transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl"
-          src="~/assets/images/haircut.jpg"
-          alt=""
-        />
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col md:flex-row justify-center mb-20 md:mb-50 px-4 md:px-0"
-    >
-      <div class="slide-in from-left mb-8 md:mb-0">
-        <img
-          class="w-full md:w-120 md:mr-45 rounded-2xl transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl"
-          src="~/assets/images/haircut.jpg"
-          alt=""
-        />
-      </div>
-      <div class="slide-in from-right">
-        <p class="text-3xl md:text-4xl font-semibold max-w-xl px-2">
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Smoothing</span
-          >
-          & Hair
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Repair</span
-          >
-          Treatments
-        </p>
-        <p
-          class="text-lg md:text-xl font-regular max-w-md px-3 mt-6 md:mt-10 text-[#696984]"
-        >
-          Say goodbye to frizz and dryness with our premium smoothing
-          treatments. Whether it's Keratin Smoothing, Collagen Smoothing, or a
-          Keratin Treatment, we nourish and strengthen your hair, leaving it
-          silky, healthy, and easy to manage.
-        </p>
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col-reverse md:flex-row justify-center mb-20 md:mb-30 px-4 md:px-0"
-    >
-      <div class="slide-in from-left mt-8 md:mt-0">
-        <p class="text-3xl md:text-4xl font-semibold max-w-xl px-2 md:px-20">
-          Flawless
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Makeup</span
-          >
-          for Special
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Occasions</span
-          >
-        </p>
-        <p
-          class="text-lg md:text-xl font-regular max-w-xl px-2 md:px-20 mt-6 md:mt-10 text-[#696984]"
-        >
-          Look radiant for your big day with our professional makeup services.
-          Whether it's for a graduation ceremony or a glamorous party, we craft
-          stunning, long-lasting looks that enhance your natural beauty.
-        </p>
-      </div>
-      <div class="slide-in from-right">
-        <img
-          class="w-full md:w-120 rounded-2xl transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl"
-          src="~/assets/images/haircut.jpg"
-          alt=""
-        />
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col md:flex-row justify-center mb-20 md:mb-50 px-4 md:px-0"
-    >
-      <div class="slide-in from-left mb-8 md:mb-0">
-        <img
-          class="w-full md:w-120 md:mr-45 rounded-2xl transform hover:scale-105 transition-all duration-500 ease-out hover:shadow-2xl"
-          src="~/assets/images/haircut.jpg"
-          alt=""
-        />
-      </div>
-      <div class="slide-in from-right">
-        <p class="text-3xl md:text-4xl font-semibold max-w-xl px-2">
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Relaxing</span
-          >
-          &
-          <span
-            class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-            >Rejuvenating</span
-          >
-          Facial Treatments
-        </p>
-        <p
-          class="text-lg md:text-xl font-regular max-w-md px-3 mt-6 md:mt-10 text-[#696984]"
-        >
-          Pamper your skin with our customized facial treatments. From a
-          refreshing Basic Facial to a luxurious Premium Facial, we deeply
-          cleanse, hydrate, and revitalize your skin for a glowing, youthful
-          complexion.
-        </p>
-      </div>
-    </div>
+    <Services></Services>
 
     <div
       class="flex items-center justify-center -mt-10 md:-mt-20 mb-40 md:mb-60 px-4 md:px-0"
@@ -639,6 +382,10 @@ onMounted(() => {
 
     <div class="mb-20 md:mb-40">
       <Testimonial />
+    </div>
+
+    <div>
+      <ContactSection />
     </div>
 
     <footer class="bg-gray-100 py-10">

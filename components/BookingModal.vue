@@ -266,6 +266,20 @@
       </div>
     </div>
   </div>
+  <div
+    v-if="showMidtransModal"
+    class="fixed inset-0 z-[60] flex items-center justify-center"
+  >
+    <div class="fixed inset-0 bg-black/60" @click="closeMidtransModal"></div>
+    <div class="relative z-[70] w-full max-w-md">
+      <iframe
+        :src="midtransUrl"
+        class="w-full h-[600px] rounded-lg"
+        frameborder="0"
+        allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment"
+      ></iframe>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -292,6 +306,8 @@ const paymentMethod = ref("");
 const paymentType = ref("");
 const services = ref([]);
 const paymentMethods = ref([]);
+const showMidtransModal = ref(false);
+const midtransUrl = ref("");
 
 // Computed property to check if Cashless is selected
 const isCashlessSelected = computed(() => {
@@ -436,7 +452,7 @@ const createMidtransTransaction = async (bookingId) => {
         },
         body: JSON.stringify({
           booking_id: bookingId,
-          kategori_transaksi_id: 2, // ID for Cashless
+          kategori_transaksi_id: 2,
           is_dp: paymentType.value === "dp",
         }),
       }
@@ -454,6 +470,12 @@ const createMidtransTransaction = async (bookingId) => {
   }
 };
 
+const closeMidtransModal = () => {
+  showMidtransModal.value = false;
+  midtransUrl.value = "";
+  close(); // Close the booking modal as well
+};
+
 const submitBooking = async () => {
   try {
     const token = Cookies.get("token");
@@ -462,7 +484,6 @@ const submitBooking = async () => {
       return;
     }
 
-    // Validasi
     if (
       !selectedDate.value ||
       !bookingTime.value ||
@@ -473,7 +494,6 @@ const submitBooking = async () => {
       return;
     }
 
-    // Siapkan data request dengan nama field yang sesuai dengan backend
     const bookingPayload = {
       tanggal: formatDateForAPI(selectedDate.value),
       jam_mulai: formatTimeForAPI(bookingTime.value),
@@ -505,7 +525,6 @@ const submitBooking = async () => {
       throw new Error(result.message || "Gagal melakukan booking.");
     }
 
-    // If payment method is Cashless, create Midtrans transaction
     if (isCashlessSelected.value) {
       try {
         const transactionResult = await createMidtransTransaction(
@@ -513,14 +532,14 @@ const submitBooking = async () => {
         );
         console.log("Transaction created:", transactionResult);
 
-        // Redirect to Midtrans payment page
-        window.location.href = transactionResult.snap_url;
+        // Instead of redirecting, show the Midtrans modal
+        midtransUrl.value = transactionResult.snap_url;
+        showMidtransModal.value = true;
       } catch (error) {
         console.error("Error creating transaction:", error);
         alert("Gagal membuat transaksi pembayaran. Silakan coba lagi.");
       }
     } else {
-      // For cash payments, just show success message and close
       alert(`✅ ${result.message} (#${result.booking_number})`);
       close();
     }

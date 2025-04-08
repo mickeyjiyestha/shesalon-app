@@ -15,7 +15,7 @@ const login = async () => {
     });
 
     const response = await fetch(
-      "https://b05a-182-253-98-194.ngrok-free.app/api/auth/login",
+      "https://42e4-182-253-51-55.ngrok-free.app/api/auth/login",
       {
         method: "POST",
         headers: {
@@ -30,6 +30,7 @@ const login = async () => {
     );
 
     const result = await response.json();
+    console.log("Response API:", result);
 
     if (!response.ok) {
       throw new Error(result.message || "Login failed!");

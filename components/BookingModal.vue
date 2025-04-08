@@ -23,12 +23,13 @@
               <div class="calendar-wrapper bg-white rounded-xl">
                 <ClientOnly>
                   <Calendar
-                    v-model="bookingDate"
+                    v-model="selectedDate"
                     :min-date="new Date()"
                     :attributes="attributes"
                     class="custom-calendar"
                     is-expanded
                     borderless
+                    @dayclick="onDateSelect"
                   />
                 </ClientOnly>
               </div>
@@ -73,83 +74,58 @@
                 </div>
               </div>
 
-              <div>
-                <label class="block text-gray-700 text-sm font-medium mb-2"
-                  >Select Service</label
+              <!-- Service Selection -->
+              <div v-if="isServicesLoaded">
+                <div
+                  v-for="(service, index) in selectedServices"
+                  :key="index"
+                  class="mb-4"
                 >
-                <div class="relative">
-                  <select
-                    v-model="selectedService"
-                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="">Choose a service</option>
-                    <option
-                      v-for="service in services"
-                      :key="service.id"
-                      :value="service.id"
+                  <label class="block text-gray-700 text-sm font-medium mb-2">
+                    Service {{ index + 1 }}
+                  </label>
+                  <div class="relative">
+                    <select
+                      v-model="selectedServices[index]"
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
                     >
-                      {{ service.name }} - Rp{{
-                        service.price.toLocaleString()
-                      }}
-                    </option>
-                  </select>
-                  <div
-                    class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
-                  >
-                    <svg
-                      class="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                      <option value="">Pilih Service</option>
+                      <option
+                        v-for="service in services"
+                        :key="service.id"
+                        :value="service.id"
+                      >
+                        {{ service.nama }}
+                      </option>
+                    </select>
+                    <div
+                      class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
                     >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                      <svg
+                        class="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Hair Color Selection -->
-              <div v-if="selectedService === 2">
-                <label class="block text-gray-700 text-sm font-medium mb-2"
-                  >Select Hair Color</label
+                <button
+                  type="button"
+                  @click="addService"
+                  class="mt-2 px-4 py-2 bg-[#F97474] text-white rounded-xl hover:bg-[#e65c5c] transition"
+                  v-if="selectedServices.length < services.length"
                 >
-                <div class="relative">
-                  <select
-                    v-model="selectedHairColor"
-                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="">Choose a hair color</option>
-                    <option
-                      v-for="color in hairColors"
-                      :key="color.id"
-                      :value="color.id"
-                    >
-                      {{ color.name }}
-                    </option>
-                  </select>
-                  <div
-                    class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
-                  >
-                    <svg
-                      class="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </div>
+                  + Tambah Service
+                </button>
               </div>
 
               <div>
@@ -162,9 +138,13 @@
                     class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Select payment option</option>
-                    <option value="cash">Cash</option>
-                    <option value="transfer">Bank Transfer</option>
-                    <option value="qris">QRIS</option>
+                    <option
+                      v-for="method in paymentMethods"
+                      :key="method.id"
+                      :value="method.id"
+                    >
+                      {{ method.nama }}
+                    </option>
                   </select>
                   <div
                     class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
@@ -182,6 +162,33 @@
                         d="M19 9l-7 7-7-7"
                       />
                     </svg>
+                  </div>
+                </div>
+
+                <!-- Payment Type Radio Buttons - Only show for Cashless -->
+                <div v-if="isCashlessSelected" class="mt-4">
+                  <label class="block text-gray-700 text-sm font-medium mb-2"
+                    >Payment Type</label
+                  >
+                  <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        v-model="paymentType"
+                        value="dp"
+                        class="form-radio text-[#F97474] focus:ring-[#F97474]"
+                      />
+                      <span class="ml-2">DP</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        v-model="paymentType"
+                        value="lunas"
+                        class="form-radio text-[#F97474] focus:ring-[#F97474]"
+                      />
+                      <span class="ml-2">Lunas</span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -195,21 +202,32 @@
                 Payment Summary
               </h3>
 
-              <div v-if="selectedService" class="space-y-4">
-                <div class="flex justify-between items-start">
+              <div class="mb-4">
+                <p class="text-gray-600">Selected Date:</p>
+                <p class="font-medium">{{ formattedSelectedDate }}</p>
+              </div>
+
+              <div class="mb-4">
+                <p class="text-gray-600">Selected Time:</p>
+                <p class="font-medium">{{ bookingTime || "---" }}</p>
+              </div>
+
+              <div v-if="selectedServices.length > 0" class="space-y-4">
+                <div
+                  v-for="serviceId in selectedServices"
+                  :key="serviceId"
+                  class="flex justify-between items-start"
+                  v-if="serviceId && getServiceById(serviceId)"
+                >
                   <div>
                     <p class="font-medium text-gray-800">
-                      {{ getSelectedService?.name }}
-                    </p>
-                    <p
-                      v-if="selectedHairColor && selectedService === 2"
-                      class="text-sm text-gray-600"
-                    >
-                      Color: {{ getSelectedHairColor?.name }}
+                      {{ getServiceById(serviceId)?.nama }}
                     </p>
                   </div>
                   <p class="font-medium text-gray-800">
-                    Rp{{ getSelectedService?.price.toLocaleString() }}
+                    Rp{{
+                      Number(getServiceById(serviceId)?.harga).toLocaleString()
+                    }}
                   </p>
                 </div>
 
@@ -217,24 +235,9 @@
                   <div class="flex justify-between items-center">
                     <p class="font-semibold text-gray-800">Total</p>
                     <p class="font-semibold text-gray-800">
-                      Rp{{ getSelectedService?.price.toLocaleString() }}
+                      Rp{{ totalPrice.toLocaleString() }}
                     </p>
                   </div>
-                </div>
-
-                <div class="pt-4">
-                  <p class="text-sm text-gray-600">
-                    <span class="font-medium">Date:</span>
-                    {{ bookingDate ? formatDate(bookingDate) : "---" }}
-                  </p>
-                  <p class="text-sm text-gray-600">
-                    <span class="font-medium">Time:</span>
-                    {{ bookingTime || "---" }}
-                  </p>
-                  <p class="text-sm text-gray-600">
-                    <span class="font-medium">Payment:</span>
-                    {{ formatPaymentMethod }}
-                  </p>
                 </div>
               </div>
 
@@ -266,9 +269,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { Calendar } from "v-calendar";
 import "v-calendar/style.css";
+import Cookies from "js-cookie";
 
 const props = defineProps({
   isOpen: {
@@ -280,11 +284,52 @@ const props = defineProps({
 const emit = defineEmits(["close", "submit"]);
 
 // Form data
-const bookingDate = ref(new Date());
+const selectedDate = ref(new Date());
 const bookingTime = ref("");
-const selectedService = ref("");
-const selectedHairColor = ref("");
+const selectedServices = ref([""]);
+const isServicesLoaded = ref(false);
 const paymentMethod = ref("");
+const paymentType = ref("");
+const services = ref([]);
+const paymentMethods = ref([]);
+
+// Computed property to check if Cashless is selected
+const isCashlessSelected = computed(() => {
+  const selectedMethod = paymentMethods.value.find(
+    (method) => method.id === paymentMethod.value
+  );
+  return selectedMethod?.nama === "Cashless";
+});
+
+// Watch payment method changes
+watch(paymentMethod, (newValue) => {
+  // Reset payment type when payment method changes
+  paymentType.value = "";
+});
+
+// Computed property untuk format tanggal
+const formattedSelectedDate = computed(() => {
+  if (!selectedDate.value) return "---";
+  return new Date(selectedDate.value).toLocaleDateString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+});
+
+const addService = () => {
+  selectedServices.value.push("");
+};
+
+const getServiceById = (id) => services.value.find((s) => s.id === id);
+
+const totalPrice = computed(() => {
+  return selectedServices.value.reduce((sum, id) => {
+    const service = getServiceById(id);
+    return sum + (service ? Number(service.harga) : 0);
+  }, 0);
+});
 
 // Calendar attributes
 const attributes = [
@@ -311,73 +356,50 @@ const availableTimes = [
   "19:00",
 ];
 
-// Services list
-const services = [
-  { id: 1, name: "Haircut", price: 50000 },
-  { id: 2, name: "Hair Coloring", price: 350000 },
-  { id: 3, name: "Smoothing", price: 500000 },
-  { id: 4, name: "Basic Facial", price: 150000 },
-  { id: 5, name: "Premium Facial", price: 250000 },
-  { id: 6, name: "Makeup", price: 200000 },
-];
+onMounted(async () => {
+  try {
+    // Fetch services
+    const servicesResponse = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/layanan",
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      }
+    );
+    const servicesResult = await servicesResponse.json();
+    services.value = servicesResult;
+    isServicesLoaded.value = true;
 
-// Hair colors
-const hairColors = [
-  { id: 1, name: "Black" },
-  { id: 2, name: "Brown" },
-  { id: 3, name: "Blonde" },
-  { id: 4, name: "Red" },
-  { id: 5, name: "Silver" },
-  { id: 6, name: "Blue" },
-  { id: 7, name: "Purple" },
-  { id: 8, name: "Pink" },
-];
-
-// Computed properties
-const getSelectedService = computed(() => {
-  return services.find((service) => service.id === selectedService.value);
-});
-
-const getSelectedHairColor = computed(() => {
-  return hairColors.find((color) => color.id === selectedHairColor.value);
-});
-
-const formatPaymentMethod = computed(() => {
-  if (!paymentMethod.value) return "---";
-  return {
-    cash: "Cash",
-    transfer: "Bank Transfer",
-    qris: "QRIS",
-  }[paymentMethod.value];
+    // Fetch payment methods
+    const paymentMethodsResponse = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksikategori",
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      }
+    );
+    const paymentMethodsResult = await paymentMethodsResponse.json();
+    paymentMethods.value = paymentMethodsResult.kategori_transaksi;
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
 });
 
 // Form validation
 const isFormValid = computed(() => {
-  if (selectedService.value === 2) {
-    return (
-      bookingDate.value &&
-      bookingTime.value &&
-      selectedService.value &&
-      selectedHairColor.value &&
-      paymentMethod.value
-    );
-  }
   return (
-    bookingDate.value &&
+    selectedDate.value &&
     bookingTime.value &&
-    selectedService.value &&
-    paymentMethod.value
+    selectedServices.value.every((service) => service !== "") &&
+    paymentMethod.value &&
+    (!isCashlessSelected.value || paymentType.value) // Only require payment type for Cashless
   );
 });
 
-// Methods
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+const onDateSelect = (date) => {
+  selectedDate.value = date.date;
 };
 
 const close = () => {
@@ -385,27 +407,135 @@ const close = () => {
   resetForm();
 };
 
-const submitBooking = () => {
-  if (!isFormValid.value) return;
+// Format tanggal untuk API (YYYY-MM-DD)
+const formatDateForAPI = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-  const bookingData = {
-    date: bookingDate.value,
-    time: bookingTime.value,
-    serviceId: selectedService.value,
-    hairColor: selectedService.value === 2 ? selectedHairColor.value : null,
-    paymentMethod: paymentMethod.value,
-  };
+// Format waktu untuk API (HH:mm:ss)
+const formatTimeForAPI = (time) => {
+  return `${time}:00`;
+};
 
-  emit("submit", bookingData);
-  close();
+// Function to create Midtrans transaction
+const createMidtransTransaction = async (bookingId) => {
+  try {
+    const token = Cookies.get("token");
+    const response = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksi",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({
+          booking_id: bookingId,
+          kategori_transaksi_id: 2, // ID for Cashless
+          is_dp: paymentType.value === "dp",
+        }),
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to create transaction");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error creating Midtrans transaction:", error);
+    throw error;
+  }
+};
+
+const submitBooking = async () => {
+  try {
+    const token = Cookies.get("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu!");
+      return;
+    }
+
+    // Validasi
+    if (
+      !selectedDate.value ||
+      !bookingTime.value ||
+      selectedServices.value.includes("") ||
+      (isCashlessSelected.value && !paymentType.value)
+    ) {
+      alert("Lengkapi semua data booking.");
+      return;
+    }
+
+    // Siapkan data request dengan nama field yang sesuai dengan backend
+    const bookingPayload = {
+      tanggal: formatDateForAPI(selectedDate.value),
+      jam_mulai: formatTimeForAPI(bookingTime.value),
+      layanan_id: selectedServices.value.filter((id) => id !== ""),
+      payment_method: paymentMethod.value,
+      payment_type: isCashlessSelected.value ? paymentType.value : null,
+      total_harga: totalPrice.value,
+    };
+
+    console.log("Sending booking data:", bookingPayload);
+
+    const response = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/booking",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify(bookingPayload),
+      }
+    );
+
+    const result = await response.json();
+    console.log("Booking Response:", result);
+
+    if (!response.ok) {
+      throw new Error(result.message || "Gagal melakukan booking.");
+    }
+
+    // If payment method is Cashless, create Midtrans transaction
+    if (isCashlessSelected.value) {
+      try {
+        const transactionResult = await createMidtransTransaction(
+          result.booking_id
+        );
+        console.log("Transaction created:", transactionResult);
+
+        // Redirect to Midtrans payment page
+        window.location.href = transactionResult.snap_url;
+      } catch (error) {
+        console.error("Error creating transaction:", error);
+        alert("Gagal membuat transaksi pembayaran. Silakan coba lagi.");
+      }
+    } else {
+      // For cash payments, just show success message and close
+      alert(`✅ ${result.message} (#${result.booking_number})`);
+      close();
+    }
+  } catch (error) {
+    console.error("Error saat booking:", error);
+    alert(error.message || "Terjadi kesalahan saat booking.");
+  }
 };
 
 const resetForm = () => {
-  bookingDate.value = new Date();
+  selectedDate.value = new Date();
   bookingTime.value = "";
-  selectedService.value = "";
-  selectedHairColor.value = "";
+  selectedServices.value = [""];
   paymentMethod.value = "";
+  paymentType.value = "";
 };
 </script>
 
@@ -414,6 +544,7 @@ const resetForm = () => {
   position: relative;
   min-height: 400px;
   padding: 1rem;
+  margin-left: -30px;
   border: 1px solid #e5e7eb;
   overflow: visible !important;
 }

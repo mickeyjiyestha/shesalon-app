@@ -39,7 +39,7 @@ const registerUser = async () => {
 
   try {
     const response = await fetch(
-      "https://b05a-182-253-98-194.ngrok-free.app/api/auth/register",
+      "https://42e4-182-253-51-55.ngrok-free.app/api/auth/register",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

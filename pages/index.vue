@@ -233,7 +233,7 @@ onMounted(() => {
       </div>
     </header>
 
-    <Brands></Brands>
+    <Brands />
 
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-10">
@@ -255,7 +255,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <Founder></Founder>
+    <Founder />
 
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-20 md:mb-30">
@@ -267,7 +267,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <Services></Services>
+    <Services />
 
     <div
       class="flex items-center justify-center -mt-10 md:-mt-20 mb-40 md:mb-60 px-4 md:px-0"
@@ -286,99 +286,7 @@ onMounted(() => {
       @submit="handleBookingSubmit"
     />
 
-    <div
-      class="flex items-center justify-center mb-6 md:mb-10 slide-in from-bottom px-4 md:px-0"
-    >
-      <p class="text-3xl md:text-4xl font-semibold">
-        Why is
-        <span
-          class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-          >Choosing Us</span
-        >
-      </p>
-    </div>
-
-    <div
-      class="flex justify-center mb-20 md:mb-30 items-center text-center fade-in px-4 md:px-0"
-    >
-      <p class="text-lg md:text-xl font-regular max-w-2xl text-[#696984]">
-        At She Salon, we prioritize quality, expertise, and comfort to give you
-        the best beauty experience
-      </p>
-    </div>
-
-    <div
-      class="flex flex-col md:flex-row items-center justify-center mb-40 md:mb-60 relative px-4 md:px-0 space-y-8 md:space-y-0 md:space-x-4"
-    >
-      <div
-        class="shadow-xl p-5 py-18 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in"
-      >
-        <div
-          class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
-        >
-          <img
-            src="~/assets/images/barbershop.png"
-            alt=""
-            class="transform hover:rotate-12 transition-transform duration-300"
-          />
-        </div>
-        <div class="text-xl max-w-60 mx-auto mb-5 mt-10">
-          <p>Professional & Experienced Stylists</p>
-        </div>
-        <div class="max-w-80 mx-auto">
-          <p class="text-md text-[#696984]">
-            Our team consists of highly skilled and trained professionals
-            dedicated to bringing out your best look.
-          </p>
-        </div>
-      </div>
-
-      <div
-        class="shadow-xl p-5 py-15 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in delay-200"
-      >
-        <div
-          class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
-        >
-          <img
-            src="~/assets/images/barbershop.png"
-            alt=""
-            class="transform hover:rotate-12 transition-transform duration-300"
-          />
-        </div>
-        <div class="text-xl max-w-60 mx-auto mb-5 mt-10">
-          <p>Premium Products & Personalized Care</p>
-        </div>
-        <div class="max-w-80 mx-auto">
-          <p class="text-md text-[#696984]">
-            We use only high-quality, salon grade products to ensure you get the
-            best results for your hair, skin, beauty and wellness.
-          </p>
-        </div>
-      </div>
-
-      <div
-        class="shadow-xl p-5 py-15 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in delay-400"
-      >
-        <div
-          class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
-        >
-          <img
-            src="~/assets/images/barbershop.png"
-            alt=""
-            class="transform hover:rotate-12 transition-transform duration-300"
-          />
-        </div>
-        <div class="text-xl max-w-60 mx-auto mb-5 mt-10">
-          <p>Relaxing & Luxurious Atmosphere</p>
-        </div>
-        <div class="max-w-80 mx-auto">
-          <p class="text-md text-[#696984]">
-            Our team consists of highly skilled and trained professionals
-            dedicated to bringing out your best look, style, and confidence.
-          </p>
-        </div>
-      </div>
-    </div>
+    <WhyChoosingUs></WhyChoosingUs>
 
     <div class="mb-20 md:mb-40">
       <Testimonial />
@@ -388,164 +296,9 @@ onMounted(() => {
       <ContactSection />
     </div>
 
-    <footer class="bg-gray-100 py-10">
-      <div class="container mx-auto px-4 md:px-8">
-        <div class="w-full mb-10 fade-in">
-          <h3 class="text-[#F97474] font-semibold text-center mb-6">
-            Visit Us
-          </h3>
-          <div
-            class="block w-full h-[300px] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <GoogleMap />
-          </div>
-        </div>
+    <Footer></Footer>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div class="fade-in">
-            <h2 class="text-lg font-bold">She Salon</h2>
-            <p class="text-gray-600 mt-2">
-              Beauty, expertise, quality service, relaxation, confidence, style,
-              care, elegance, perfection, trust.
-            </p>
-            <p class="text-gray-500 text-sm mt-4">Copyright © 2025</p>
-            <div class="mt-4 text-gray-600">
-              <a
-                href="https://maps.app.goo.gl/2g4WapZUU1irp3dR8"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block group hover:text-[#F97474] transition-colors duration-300"
-              >
-                <div class="flex items-center space-x-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 group-hover:text-[#F97474] transition-colors duration-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span>Our Location:</span>
-                </div>
-                <p
-                  class="text-sm mt-2 pl-7 group-hover:text-[#F97474] transition-colors duration-300"
-                >
-                  Jl. Pratama No.95B, Benoa, Kec. Kuta Sel., Kabupaten Badung,
-                  Bali
-                </p>
-              </a>
-            </div>
-          </div>
-
-          <div class="fade-in delay-200">
-            <h3 class="text-[#F97474] font-semibold">Services</h3>
-            <ul class="mt-2 space-y-2 text-gray-700">
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Smoothing
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Massage
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Pedicure
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Haircut
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Hair Coloring
-              </li>
-            </ul>
-          </div>
-
-          <div class="fade-in delay-400">
-            <h3 class="text-[#F97474] font-semibold">Quick Links</h3>
-            <ul class="mt-2 space-y-2 text-gray-700">
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Home
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                About Us
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Services
-              </li>
-              <li
-                class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                Booking
-              </li>
-            </ul>
-          </div>
-
-          <div class="fade-in delay-600">
-            <h3 class="text-[#F97474] font-semibold">Follow Us</h3>
-            <ul class="mt-2 space-y-2 text-gray-700">
-              <li
-                class="flex items-center space-x-2 hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                <i class="fab fa-facebook"></i>
-                <span>Facebook</span>
-              </li>
-              <li
-                class="flex items-center space-x-2 hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                <i class="fab fa-twitter"></i>
-                <span>Twitter</span>
-              </li>
-              <li
-                class="flex items-center space-x-2 hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-x-2 cursor-pointer"
-              >
-                <i class="fab fa-instagram"></i>
-                <span>Instagram</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-8 text-center text-gray-500 text-sm">
-        <span
-          class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-y-[-2px] cursor-pointer"
-        >
-          Terms & Conditions
-        </span>
-        |
-        <span
-          class="hover:text-[#F97474] transition-all duration-300 ease-out hover:translate-y-[-2px] cursor-pointer"
-        >
-          Privacy Policy
-        </span>
-      </div>
-    </footer>
+    <Falcon />
   </div>
 </template>
 

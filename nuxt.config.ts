@@ -9,12 +9,12 @@ export default defineNuxtConfig({
     server: {
       hmr: {
         protocol: "wss",
-        host: "3033-103-19-231-212.ngrok-free.app",
+        host: "7816-182-253-51-55.ngrok-free.app",
         clientPort: 443,
       },
       strictPort: true,
       cors: true,
-      allowedHosts: ["3033-103-19-231-212.ngrok-free.app"],
+      allowedHosts: ["7816-182-253-51-55.ngrok-free.app"],
     },
   },
   app: {

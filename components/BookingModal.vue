@@ -273,20 +273,26 @@
     <div class="fixed inset-0 bg-black/60" @click="closeMidtransModal"></div>
     <div class="relative z-[70] w-full max-w-md">
       <iframe
+        ref="midtransFrame"
         :src="midtransUrl"
         class="w-full h-[600px] rounded-lg"
         frameborder="0"
-        allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment"
+        allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment; clipboard-write"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups"
       ></iframe>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { Calendar } from "v-calendar";
 import "v-calendar/style.css";
 import Cookies from "js-cookie";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
 
 const props = defineProps({
   isOpen: {
@@ -297,7 +303,6 @@ const props = defineProps({
 
 const emit = defineEmits(["close", "submit"]);
 
-// Form data
 const selectedDate = ref(new Date());
 const bookingTime = ref("");
 const selectedServices = ref([""]);
@@ -306,10 +311,68 @@ const paymentMethod = ref("");
 const paymentType = ref("");
 const services = ref([]);
 const paymentMethods = ref([]);
+
 const showMidtransModal = ref(false);
 const midtransUrl = ref("");
+const currentTransactionId = ref(null);
+const midtransFrame = ref(null);
 
-// Computed property to check if Cashless is selected
+const navigateToHome = () => {
+  try {
+    window.top.location.href = "/";
+  } catch (e) {
+    try {
+      window.location.replace("/");
+    } catch (e2) {
+      window.location.href = "/";
+    }
+  }
+};
+
+const setupMidtransCallback = () => {
+  window.addEventListener("message", handleMidtransCallback);
+};
+
+const handleMidtransCallback = async (event) => {
+  if (event.origin !== "https://app.sandbox.midtrans.com") return; // keamanan (ganti ke production jika sudah live)
+
+  const data = event.data;
+
+  if (data?.transaction_status) {
+    console.log("Midtrans transaction callback:", data);
+
+    // Tutup modal
+    showMidtransModal.value = false;
+
+    // Reset state jika perlu
+    selectedServices.value = [""];
+    paymentMethod.value = "";
+    paymentType.value = "";
+    bookingTime.value = "";
+    selectedDate.value = new Date();
+
+    // Lakukan redirect atau tampilkan notifikasi
+    alert(
+      `Pembayaran ${
+        data.transaction_status === "settlement" ? "berhasil" : "dalam proses"
+      }`
+    );
+
+    // Emit ke parent kalau perlu
+    emit("submit", {
+      status: data.transaction_status,
+      order_id: data.order_id,
+      gross_amount: data.gross_amount,
+    });
+
+    navigateToHome(); // redirect ke halaman home
+  }
+};
+
+const cleanupMidtransCallback = () => {
+  window.removeEventListener("message", handleMidtransCallback);
+};
+
 const isCashlessSelected = computed(() => {
   const selectedMethod = paymentMethods.value.find(
     (method) => method.id === paymentMethod.value
@@ -317,13 +380,6 @@ const isCashlessSelected = computed(() => {
   return selectedMethod?.nama === "Cashless";
 });
 
-// Watch payment method changes
-watch(paymentMethod, (newValue) => {
-  // Reset payment type when payment method changes
-  paymentType.value = "";
-});
-
-// Computed property untuk format tanggal
 const formattedSelectedDate = computed(() => {
   if (!selectedDate.value) return "---";
   return new Date(selectedDate.value).toLocaleDateString("id-ID", {
@@ -334,12 +390,6 @@ const formattedSelectedDate = computed(() => {
   });
 });
 
-const addService = () => {
-  selectedServices.value.push("");
-};
-
-const getServiceById = (id) => services.value.find((s) => s.id === id);
-
 const totalPrice = computed(() => {
   return selectedServices.value.reduce((sum, id) => {
     const service = getServiceById(id);
@@ -347,7 +397,16 @@ const totalPrice = computed(() => {
   }, 0);
 });
 
-// Calendar attributes
+const isFormValid = computed(() => {
+  return (
+    selectedDate.value &&
+    bookingTime.value &&
+    selectedServices.value.every((service) => service !== "") &&
+    paymentMethod.value &&
+    (!isCashlessSelected.value || paymentType.value)
+  );
+});
+
 const attributes = [
   {
     key: "selected",
@@ -357,7 +416,6 @@ const attributes = [
   },
 ];
 
-// Available times (9 AM to 7 PM)
 const availableTimes = [
   "09:00",
   "10:00",
@@ -372,72 +430,6 @@ const availableTimes = [
   "19:00",
 ];
 
-onMounted(async () => {
-  try {
-    // Fetch services
-    const servicesResponse = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/layanan",
-      {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
-      }
-    );
-    const servicesResult = await servicesResponse.json();
-    services.value = servicesResult;
-    isServicesLoaded.value = true;
-
-    // Fetch payment methods
-    const paymentMethodsResponse = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksikategori",
-      {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
-      }
-    );
-    const paymentMethodsResult = await paymentMethodsResponse.json();
-    paymentMethods.value = paymentMethodsResult.kategori_transaksi;
-  } catch (err) {
-    console.error("Fetch failed:", err);
-  }
-});
-
-// Form validation
-const isFormValid = computed(() => {
-  return (
-    selectedDate.value &&
-    bookingTime.value &&
-    selectedServices.value.every((service) => service !== "") &&
-    paymentMethod.value &&
-    (!isCashlessSelected.value || paymentType.value) // Only require payment type for Cashless
-  );
-});
-
-const onDateSelect = (date) => {
-  selectedDate.value = date.date;
-};
-
-const close = () => {
-  emit("close");
-  resetForm();
-};
-
-// Format tanggal untuk API (YYYY-MM-DD)
-const formatDateForAPI = (date) => {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-// Format waktu untuk API (HH:mm:ss)
-const formatTimeForAPI = (time) => {
-  return `${time}:00`;
-};
-
-// Function to create Midtrans transaction
 const createMidtransTransaction = async (bookingId) => {
   try {
     const token = Cookies.get("token");
@@ -463,6 +455,7 @@ const createMidtransTransaction = async (bookingId) => {
       throw new Error(result.message || "Failed to create transaction");
     }
 
+    currentTransactionId.value = result.transaction_id;
     return result;
   } catch (error) {
     console.error("Error creating Midtrans transaction:", error);
@@ -473,7 +466,45 @@ const createMidtransTransaction = async (bookingId) => {
 const closeMidtransModal = () => {
   showMidtransModal.value = false;
   midtransUrl.value = "";
-  close(); // Close the booking modal as well
+  currentTransactionId.value = null;
+  cleanupMidtransCallback();
+  close();
+  navigateToHome();
+};
+
+const close = () => {
+  emit("close");
+  resetForm();
+};
+
+const resetForm = () => {
+  selectedDate.value = new Date();
+  bookingTime.value = "";
+  selectedServices.value = [""];
+  paymentMethod.value = "";
+  paymentType.value = "";
+};
+
+const onDateSelect = (date) => {
+  selectedDate.value = date.date;
+};
+
+const getServiceById = (id) => services.value.find((s) => s.id === id);
+
+const addService = () => {
+  selectedServices.value.push("");
+};
+
+const formatDateForAPI = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const formatTimeForAPI = (time) => {
+  return `${time}:00`;
 };
 
 const submitBooking = async () => {
@@ -503,8 +534,6 @@ const submitBooking = async () => {
       total_harga: totalPrice.value,
     };
 
-    console.log("Sending booking data:", bookingPayload);
-
     const response = await fetch(
       "https://42e4-182-253-51-55.ngrok-free.app/api/booking",
       {
@@ -519,8 +548,6 @@ const submitBooking = async () => {
     );
 
     const result = await response.json();
-    console.log("Booking Response:", result);
-
     if (!response.ok) {
       throw new Error(result.message || "Gagal melakukan booking.");
     }
@@ -530,18 +557,18 @@ const submitBooking = async () => {
         const transactionResult = await createMidtransTransaction(
           result.booking_id
         );
-        console.log("Transaction created:", transactionResult);
-
-        // Instead of redirecting, show the Midtrans modal
         midtransUrl.value = transactionResult.snap_url;
         showMidtransModal.value = true;
+        setupMidtransCallback();
       } catch (error) {
         console.error("Error creating transaction:", error);
         alert("Gagal membuat transaksi pembayaran. Silakan coba lagi.");
+        navigateToHome();
       }
     } else {
       alert(`✅ ${result.message} (#${result.booking_number})`);
       close();
+      navigateToHome();
     }
   } catch (error) {
     console.error("Error saat booking:", error);
@@ -549,13 +576,53 @@ const submitBooking = async () => {
   }
 };
 
-const resetForm = () => {
-  selectedDate.value = new Date();
-  bookingTime.value = "";
-  selectedServices.value = [""];
-  paymentMethod.value = "";
+onMounted(async () => {
+  try {
+    const servicesResponse = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/layanan",
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      }
+    );
+    const servicesResult = await servicesResponse.json();
+    services.value = servicesResult;
+    isServicesLoaded.value = true;
+
+    const paymentMethodsResponse = await fetch(
+      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksikategori",
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      }
+    );
+    const paymentMethodsResult = await paymentMethodsResponse.json();
+    paymentMethods.value = paymentMethodsResult.kategori_transaksi;
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", handleMidtransCallback);
+});
+
+watch(paymentMethod, () => {
   paymentType.value = "";
-};
+});
+
+watch(
+  () => props.isOpen,
+  (newVal) => {
+    if (newVal) {
+      setupMidtransCallback();
+    } else {
+      window.removeEventListener("message", handleMidtransCallback);
+    }
+  }
+);
 </script>
 
 <style>

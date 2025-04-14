@@ -57,7 +57,7 @@
           </div>
           <div class="flex-1">
             <h3 class="text-white font-semibold">Falcon Assistant</h3>
-            <p class="text-white text-sm opacity-90">Online</p>
+            <p class="text-white text-sm opacity-90">{{ onlineStatus }}</p>
           </div>
         </div>
       </div>
@@ -75,21 +75,73 @@
           ]"
         >
           {{ message.text }}
+          <div
+            class="text-xs text-right text-gray-400 mt-1"
+            v-if="message.time"
+          >
+            {{ message.time }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Replies -->
+      <div v-if="quickReplies.length > 0" class="px-4 py-2 border-t">
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="(reply, index) in quickReplies"
+            :key="index"
+            @click="handleQuickReply(reply)"
+            class="bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 text-sm transition-colors duration-200"
+          >
+            {{ reply }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Bot Typing Indicator -->
+      <div v-if="isBotTyping" class="px-4 py-2 text-sm text-gray-500 italic">
+        <div class="flex items-center space-x-2">
+          <span>Falcon is typing</span>
+          <span class="typing-dots">...</span>
         </div>
       </div>
 
       <!-- Chat Input -->
       <div class="p-4 border-t">
         <form @submit.prevent="sendMessage" class="flex space-x-2">
-          <input
-            v-model="newMessage"
-            type="text"
-            placeholder="Type your message..."
-            class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:border-[#F97474]"
-          />
+          <div class="relative flex-1">
+            <input
+              v-model="newMessage"
+              type="text"
+              :placeholder="inputPlaceholder"
+              :disabled="isBotTyping"
+              ref="messageInput"
+              @keydown.enter="sendMessage"
+              class="w-full border rounded-full px-4 py-2 pr-12 focus:outline-none focus:border-[#F97474]"
+              :class="{ 'bg-gray-100': isBotTyping }"
+            />
+            <!-- Emoji Picker Trigger -->
+            <button
+              type="button"
+              @click="toggleEmojiPicker"
+              class="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              😊
+            </button>
+            <!-- Voice Input Button -->
+            <button
+              type="button"
+              @click="toggleVoiceInput"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              :class="{ 'text-red-500': isRecording }"
+            >
+              🎤
+            </button>
+          </div>
           <button
             type="submit"
-            class="bg-[#F97474] hover:bg-[#ff5757] text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors duration-300"
+            :disabled="isBotTyping || !newMessage.trim()"
+            class="bg-[#F97474] hover:bg-[#ff5757] text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors duration-300 disabled:opacity-50"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -113,55 +165,152 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 const isChatOpen = ref(false);
+const isBotTyping = ref(false);
 const newMessage = ref("");
+const messageInput = ref(null);
+const messageContainer = ref(null);
+const isRecording = ref(false);
+const onlineStatus = ref("Online");
+
+// Quick replies based on common queries
+const quickReplies = ref([
+  "Book Appointment",
+  "Services & Prices",
+  "Opening Hours",
+  "Contact Info",
+]);
+
+// Get greeting based on time of day
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+};
+
 const messages = ref([
   {
     type: "bot",
-    text: "Hi! I'm Falcon, your beauty assistant. How can I help you today?",
+    text: `${getGreeting()}! I'm Falcon, your beauty assistant. How can I help you today?`,
   },
 ]);
-const messageContainer = ref(null);
 
+// Computed placeholder text
+const inputPlaceholder = computed(() => {
+  if (isBotTyping.value) return "Please wait for Falcon to respond...";
+  return "Type your message...";
+});
+
+// Toggle chat and focus input
 const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value;
+  if (isChatOpen.value) {
+    // Focus input after chat opens and animation completes
+    setTimeout(() => {
+      messageInput.value?.focus();
+    }, 300);
+  }
 };
 
-const sendMessage = () => {
+const getCurrentTime = () => {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
+// Handle quick replies
+const handleQuickReply = (reply) => {
+  newMessage.value = reply;
+  sendMessage();
+};
+
+// Voice input handling
+const toggleVoiceInput = () => {
+  if (!isRecording.value) {
+    startVoiceRecording();
+  } else {
+    stopVoiceRecording();
+  }
+};
+
+const startVoiceRecording = () => {
+  if ("webkitSpeechRecognition" in window) {
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      isRecording.value = true;
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      newMessage.value = transcript;
+    };
+
+    recognition.onend = () => {
+      isRecording.value = false;
+    };
+
+    recognition.start();
+  } else {
+    alert("Voice input is not supported in your browser.");
+  }
+};
+
+const stopVoiceRecording = () => {
+  isRecording.value = false;
+};
+
+const sendMessage = async () => {
   if (!newMessage.value.trim()) return;
+
+  const userText = newMessage.value;
 
   // Add user message
   messages.value.push({
     type: "user",
-    text: newMessage.value,
+    text: userText,
+    time: getCurrentTime(),
   });
 
-  // Simulate bot response
-  setTimeout(() => {
-    messages.value.push({
-      type: "bot",
-      text: getBotResponse(newMessage.value),
-    });
-  }, 1000);
-
   newMessage.value = "";
+  messageInput.value?.focus();
+
+  isBotTyping.value = true;
+
+  const botReply = await fetchBotResponse(userText);
+
+  isBotTyping.value = false;
+
+  messages.value.push({
+    type: "bot",
+    text: botReply,
+    time: getCurrentTime(),
+  });
 };
 
-const getBotResponse = (message) => {
-  const lowerMessage = message.toLowerCase();
+const fetchBotResponse = async (message) => {
+  try {
+    const response = await fetch(
+      "https://shesalon-chatbot-401887634547.asia-southeast2.run.app/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      }
+    );
 
-  if (lowerMessage.includes("book") || lowerMessage.includes("appointment")) {
-    return "I can help you book an appointment! Please visit our booking page or call us at (123) 456-7890.";
+    const data = await response.json();
+    return data.response || "Sorry, I didn't understand that.";
+  } catch (error) {
+    console.error("Error fetching bot response:", error);
+    return "Oops! Something went wrong. Please try again later.";
   }
-  if (lowerMessage.includes("price") || lowerMessage.includes("cost")) {
-    return "Our prices vary depending on the service. Would you like to see our full price list?";
-  }
-  if (lowerMessage.includes("location") || lowerMessage.includes("address")) {
-    return "We are located at Jl. Pratama No.95B, Benoa, Kec. Kuta Sel., Kabupaten Badung, Bali.";
-  }
-  return "Thank you for your message! How else can I assist you with our salon services?";
 };
 
 // Auto scroll to bottom when new messages arrive
@@ -176,6 +325,16 @@ watch(
   },
   { deep: true }
 );
+
+// Keyboard shortcuts
+onMounted(() => {
+  window.addEventListener("keydown", (e) => {
+    // Alt + C to toggle chat
+    if (e.altKey && e.key === "c") {
+      toggleChat();
+    }
+  });
+});
 </script>
 
 <style scoped>
@@ -191,6 +350,27 @@ watch(
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.typing-dots {
+  animation: typingDots 1.4s infinite;
+}
+
+@keyframes typingDots {
+  0%,
+  20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60% {
+    content: "...";
+  }
+  80%,
+  100% {
+    content: "";
   }
 }
 </style>

@@ -2,6 +2,8 @@
 import { ref, onMounted } from "vue";
 import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
+import ProfileDropdown from "@/components/ProfileDropdown.vue";
+import FaceScanner from "@/components/FaceScanner.vue";
 
 const router = useRouter();
 const isMenuOpen = ref(false);
@@ -116,6 +118,7 @@ onMounted(() => {
         class="absolute top-0 left-0 w-full px-4 md:px-20 py-4 md:py-6 transition-all duration-300"
       >
         <div class="max-w-7xl mx-auto flex justify-between items-center">
+          <!-- Logo on the left -->
           <div class="logo scale-in z-30">
             <img
               class="w-10 md:w-16 transform hover:scale-110 transition-transform duration-300 ease-out"
@@ -124,6 +127,26 @@ onMounted(() => {
             />
           </div>
 
+          <!-- Menu items (Home, Order, Blog, About, Contact Us) -->
+          <div
+            class="hidden md:flex text-white font-semibold text-lg space-x-8"
+          >
+            <p
+              v-for="(item, index) in menuItems"
+              :key="index"
+              class="hover:text-[#F97474] cursor-pointer transition-all duration-300 ease-out hover:translate-y-[-2px]"
+            >
+              {{ item }}
+            </p>
+          </div>
+
+          <!-- Profile Dropdown moved here after the menu items -->
+          <div class="ml-8">
+            <!-- Add some margin if needed to separate from menu -->
+            <ProfileDropdown :user="user" @logout="logoutUser" />
+          </div>
+
+          <!-- Mobile menu toggle button -->
           <button @click="toggleMenu" class="md:hidden z-30 p-2 text-white">
             <svg
               class="w-6 h-6"
@@ -148,18 +171,7 @@ onMounted(() => {
             </svg>
           </button>
 
-          <div
-            class="hidden md:flex text-white font-semibold text-lg space-x-8"
-          >
-            <p
-              v-for="(item, index) in menuItems"
-              :key="index"
-              class="hover:text-[#F97474] cursor-pointer transition-all duration-300 ease-out hover:translate-y-[-2px]"
-            >
-              {{ item }}
-            </p>
-          </div>
-
+          <!-- Mobile menu (when toggled) -->
           <div
             :class="[
               'fixed inset-0 bg-black/95 z-20 transition-all duration-300 md:hidden',
@@ -279,6 +291,21 @@ onMounted(() => {
         Book Now
       </button>
     </div>
+
+    <section class="py-20 bg-gray-50 mb-10">
+      <div class="max-w-7xl mx-auto px-4 md:px-20">
+        <div class="text-center mb-10 slide-in from-bottom">
+          <h2 class="text-3xl md:text-4xl font-semibold mb-4">
+            Not Sure About Your Style?
+          </h2>
+          <p class="text-lg text-gray-600 mb-8">
+            Let our AI analyze your face shape and recommend the perfect
+            hairstyle for you!
+          </p>
+          <FaceScanner />
+        </div>
+      </div>
+    </section>
 
     <BookingModal
       :is-open="isBookingModalOpen"

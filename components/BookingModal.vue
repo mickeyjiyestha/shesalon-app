@@ -374,6 +374,8 @@ const cleanupMidtransCallback = () => {
 };
 
 const isCashlessSelected = computed(() => {
+  if (!Array.isArray(paymentMethods.value)) return false;
+
   const selectedMethod = paymentMethods.value.find(
     (method) => method.id === paymentMethod.value
   );
@@ -434,7 +436,7 @@ const createMidtransTransaction = async (bookingId) => {
   try {
     const token = Cookies.get("token");
     const response = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksi",
+      "https://d6e5-180-254-225-118.ngrok-free.app/api/transaksi",
       {
         method: "POST",
         headers: {
@@ -489,7 +491,10 @@ const onDateSelect = (date) => {
   selectedDate.value = date.date;
 };
 
-const getServiceById = (id) => services.value.find((s) => s.id === id);
+const getServiceById = (id) => {
+  if (!services.value) return null;
+  return services.value.find((s) => s.id === id);
+};
 
 const addService = () => {
   selectedServices.value.push("");
@@ -535,7 +540,7 @@ const submitBooking = async () => {
     };
 
     const response = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/booking",
+      "https://d6e5-180-254-225-118.ngrok-free.app/api/booking",
       {
         method: "POST",
         headers: {
@@ -578,10 +583,14 @@ const submitBooking = async () => {
 
 onMounted(async () => {
   try {
+    const token = Cookies.get("token");
+
     const servicesResponse = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/layanan",
+      "https://d6e5-180-254-225-118.ngrok-free.app/api/layanan",
       {
         headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       }
@@ -591,15 +600,20 @@ onMounted(async () => {
     isServicesLoaded.value = true;
 
     const paymentMethodsResponse = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/transaksikategori",
+      "https://d6e5-180-254-225-118.ngrok-free.app/api/transaksikategori",
       {
         headers: {
           "ngrok-skip-browser-warning": "true",
+          Authorization: `Bearer ${Cookies.get("token")}`, // <-- tambahkan token jika API ini butuh otentikasi
         },
       }
     );
+
     const paymentMethodsResult = await paymentMethodsResponse.json();
-    paymentMethods.value = paymentMethodsResult.kategori_transaksi;
+    console.log("Payment Methods Result:", paymentMethodsResult); // ✅ Sekarang benar
+
+    paymentMethods.value = paymentMethodsResult;
+    console.log("Payment Methods:", paymentMethods.value);
   } catch (err) {
     console.error("Fetch failed:", err);
   }

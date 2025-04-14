@@ -15,7 +15,7 @@ const login = async () => {
     });
 
     const response = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/auth/login",
+      "https://d6e5-180-254-225-118.ngrok-free.app/api/auth/login",
       {
         method: "POST",
         headers: {

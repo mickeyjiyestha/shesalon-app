@@ -22,3 +22,6 @@ logs
 .env
 .env.*
 !.env.example
+
+# In .gitignore
+shesalon-app.json

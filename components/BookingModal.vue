@@ -88,6 +88,7 @@
                     <select
                       v-model="selectedServices[index]"
                       class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
+                      @change="checkServiceCategory(index)"
                     >
                       <option value="">Pilih Service</option>
                       <option
@@ -114,6 +115,134 @@
                           d="M19 9l-7 7-7-7"
                         />
                       </svg>
+                    </div>
+                  </div>
+
+                  <!-- Brand Selection Box -->
+                  <div v-if="shouldShowProducts(index)" class="mt-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">
+                      Pilih Brand untuk Service {{ index + 1 }}
+                    </label>
+                    <div class="relative">
+                      <select
+                        v-model="selectedBrands[index]"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
+                        @change="onBrandSelect(index)"
+                      >
+                        <option value="">Pilih Brand</option>
+                        <option
+                          v-for="brand in getUniqueBrands(index)"
+                          :key="brand.id"
+                          :value="brand.id"
+                        >
+                          {{ brand.nama }}
+                        </option>
+                      </select>
+                      <div
+                        class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
+                      >
+                        <svg
+                          class="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Product Selection Box -->
+                  <div v-if="selectedBrands[index]" class="mt-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">
+                      Pilih Produk untuk Service {{ index + 1 }}
+                    </label>
+                    <div class="relative">
+                      <select
+                        v-model="selectedProducts[index]"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
+                        @change="onProductSelect(index)"
+                      >
+                        <option value="">Pilih Produk</option>
+                        <option
+                          v-for="product in getProductsByBrand(index)"
+                          :key="product.product_id"
+                          :value="product.product_id"
+                        >
+                          {{ product.product.nama }} -
+                          {{ product.product.jenis }}
+                        </option>
+                      </select>
+                      <div
+                        class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
+                      >
+                        <svg
+                          class="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Color Selection Box -->
+                  <div
+                    v-if="
+                      selectedProducts[index] &&
+                      availableColors[index]?.length > 0
+                    "
+                    class="mt-4"
+                  >
+                    <label class="block text-gray-700 text-sm font-medium mb-2">
+                      Pilih Warna untuk Service {{ index + 1 }}
+                    </label>
+                    <div class="relative">
+                      <select
+                        v-model="selectedColors[index]"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="">Pilih Warna</option>
+                        <option
+                          v-for="color in availableColors[index]"
+                          :key="color.color_id"
+                          :value="color.color_id"
+                        >
+                          {{ color.nama }} - Level {{ color.level }} ({{
+                            color.kategori
+                          }})
+                        </option>
+                      </select>
+                      <div
+                        class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none"
+                      >
+                        <svg
+                          class="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -266,6 +395,7 @@
       </div>
     </div>
   </div>
+
   <div
     v-if="showMidtransModal"
     class="fixed inset-0 z-[60] flex items-center justify-center"
@@ -311,11 +441,119 @@ const paymentMethod = ref("");
 const paymentType = ref("");
 const services = ref([]);
 const paymentMethods = ref([]);
+const selectedBrands = ref([]);
+const selectedProducts = ref([]);
+const selectedColors = ref([]);
+const products = ref([]);
+const availableColors = ref([]);
 
 const showMidtransModal = ref(false);
 const midtransUrl = ref("");
 const currentTransactionId = ref(null);
 const midtransFrame = ref(null);
+
+const shouldShowProducts = (index) => {
+  const serviceId = selectedServices.value[index];
+  if (!serviceId) return false;
+
+  const service = services.value.find((s) => s.id === serviceId);
+  return service && [2, 3, 4].includes(service.kategori_id);
+};
+
+const getUniqueBrands = (index) => {
+  if (!products.value[index]) return [];
+  const uniqueBrands = [];
+  const brandIds = new Set();
+
+  products.value[index].forEach((product) => {
+    if (!brandIds.has(product.brand.id)) {
+      brandIds.add(product.brand.id);
+      uniqueBrands.push(product.brand);
+    }
+  });
+
+  return uniqueBrands;
+};
+
+const getProductsByBrand = (index) => {
+  if (!products.value[index] || !selectedBrands.value[index]) return [];
+  return products.value[index].filter(
+    (product) => product.brand.id === selectedBrands.value[index]
+  );
+};
+
+const onBrandSelect = (index) => {
+  // Reset product and color selection when brand changes
+  selectedProducts.value[index] = "";
+  selectedColors.value[index] = "";
+  availableColors.value[index] = [];
+};
+
+const onProductSelect = (index) => {
+  // Reset color selection when product changes
+  selectedColors.value[index] = "";
+
+  if (selectedProducts.value[index]) {
+    const selectedProduct = products.value[index].find(
+      (product) => product.product_id === selectedProducts.value[index]
+    );
+
+    if (selectedProduct && Array.isArray(selectedProduct.available_colors)) {
+      availableColors.value[index] = selectedProduct.available_colors;
+    } else {
+      availableColors.value[index] = [];
+    }
+  } else {
+    availableColors.value[index] = [];
+  }
+};
+
+const checkServiceCategory = async (index) => {
+  const serviceId = selectedServices.value[index];
+  if (!serviceId) {
+    products.value[index] = [];
+    selectedBrands.value[index] = "";
+    selectedProducts.value[index] = "";
+    selectedColors.value[index] = "";
+    return;
+  }
+
+  const service = services.value.find((s) => s.id === serviceId);
+  if (service && [2, 3, 4].includes(service.kategori_id)) {
+    try {
+      const token = Cookies.get("token");
+      const response = await fetch(
+        "https://e6dc-182-253-98-196.ngrok-free.app/api/products/hair/products",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      products.value[index] = result.data;
+
+      // Reset selections
+      selectedBrands.value[index] = "";
+      selectedProducts.value[index] = "";
+      selectedColors.value[index] = "";
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      products.value[index] = [];
+    }
+  } else {
+    products.value[index] = [];
+    selectedBrands.value[index] = "";
+    selectedProducts.value[index] = "";
+    selectedColors.value[index] = "";
+  }
+};
 
 const navigateToHome = () => {
   try {
@@ -334,38 +572,32 @@ const setupMidtransCallback = () => {
 };
 
 const handleMidtransCallback = async (event) => {
-  if (event.origin !== "https://app.sandbox.midtrans.com") return; // keamanan (ganti ke production jika sudah live)
+  if (event.origin !== "https://app.sandbox.midtrans.com") return;
 
   const data = event.data;
 
   if (data?.transaction_status) {
     console.log("Midtrans transaction callback:", data);
-
-    // Tutup modal
     showMidtransModal.value = false;
-
-    // Reset state jika perlu
     selectedServices.value = [""];
     paymentMethod.value = "";
     paymentType.value = "";
     bookingTime.value = "";
     selectedDate.value = new Date();
 
-    // Lakukan redirect atau tampilkan notifikasi
     alert(
       `Pembayaran ${
         data.transaction_status === "settlement" ? "berhasil" : "dalam proses"
       }`
     );
 
-    // Emit ke parent kalau perlu
     emit("submit", {
       status: data.transaction_status,
       order_id: data.order_id,
       gross_amount: data.gross_amount,
     });
 
-    navigateToHome(); // redirect ke halaman home
+    navigateToHome();
   }
 };
 
@@ -375,7 +607,6 @@ const cleanupMidtransCallback = () => {
 
 const isCashlessSelected = computed(() => {
   if (!Array.isArray(paymentMethods.value)) return false;
-
   const selectedMethod = paymentMethods.value.find(
     (method) => method.id === paymentMethod.value
   );
@@ -436,7 +667,7 @@ const createMidtransTransaction = async (bookingId) => {
   try {
     const token = Cookies.get("token");
     const response = await fetch(
-      "https://d6e5-180-254-225-118.ngrok-free.app/api/transaksi",
+      "https://e6dc-182-253-98-196.ngrok-free.app/api/transaksi",
       {
         method: "POST",
         headers: {
@@ -483,6 +714,9 @@ const resetForm = () => {
   selectedDate.value = new Date();
   bookingTime.value = "";
   selectedServices.value = [""];
+  selectedBrands.value = [];
+  selectedProducts.value = [];
+  selectedColors.value = [];
   paymentMethod.value = "";
   paymentType.value = "";
 };
@@ -498,6 +732,9 @@ const getServiceById = (id) => {
 
 const addService = () => {
   selectedServices.value.push("");
+  selectedProducts.value.push("");
+  selectedBrands.value.push("");
+  selectedColors.value.push("");
 };
 
 const formatDateForAPI = (date) => {
@@ -523,24 +760,54 @@ const submitBooking = async () => {
     if (
       !selectedDate.value ||
       !bookingTime.value ||
-      selectedServices.value.includes("") ||
-      (isCashlessSelected.value && !paymentType.value)
+      selectedServices.value.includes("")
     ) {
       alert("Lengkapi semua data booking.");
       return;
     }
 
+    // Check if hair coloring service is selected but color/brand isn't
+    const hasIncompleteHairColorService = selectedServices.value.some(
+      (serviceId, index) => {
+        const service = getServiceById(serviceId);
+        return (
+          service &&
+          [2, 3, 4].includes(service.kategori_id) &&
+          (!selectedBrands.value[index] || !selectedColors.value[index])
+        );
+      }
+    );
+
+    if (hasIncompleteHairColorService) {
+      alert("Untuk layanan pewarnaan rambut, harap pilih brand dan warna.");
+      return;
+    }
+
+    // Base booking payload
     const bookingPayload = {
+      layanan_id: selectedServices.value.filter((id) => id !== ""),
       tanggal: formatDateForAPI(selectedDate.value),
       jam_mulai: formatTimeForAPI(bookingTime.value),
-      layanan_id: selectedServices.value.filter((id) => id !== ""),
-      payment_method: paymentMethod.value,
-      payment_type: isCashlessSelected.value ? paymentType.value : null,
-      total_harga: totalPrice.value,
     };
 
+    // Find hair coloring service if present
+    const colorServiceIndex = selectedServices.value.findIndex((serviceId) => {
+      const service = getServiceById(serviceId);
+      return service && [2, 3, 4].includes(service.kategori_id);
+    });
+
+    // If hair coloring service exists, add the required hair_color data
+    if (colorServiceIndex !== -1) {
+      bookingPayload.hair_color = {
+        color_id: selectedColors.value[colorServiceIndex],
+        brand_id: selectedBrands.value[colorServiceIndex],
+      };
+    }
+
+    console.log("Sending booking payload:", bookingPayload); // For debugging
+
     const response = await fetch(
-      "https://d6e5-180-254-225-118.ngrok-free.app/api/booking",
+      "https://e6dc-182-253-98-196.ngrok-free.app/api/booking",
       {
         method: "POST",
         headers: {
@@ -586,7 +853,7 @@ onMounted(async () => {
     const token = Cookies.get("token");
 
     const servicesResponse = await fetch(
-      "https://d6e5-180-254-225-118.ngrok-free.app/api/layanan",
+      "https://e6dc-182-253-98-196.ngrok-free.app/api/layanan",
       {
         headers: {
           "Content-Type": "application/json",
@@ -600,20 +867,17 @@ onMounted(async () => {
     isServicesLoaded.value = true;
 
     const paymentMethodsResponse = await fetch(
-      "https://d6e5-180-254-225-118.ngrok-free.app/api/transaksikategori",
+      "https://e6dc-182-253-98-196.ngrok-free.app/api/transaksikategori",
       {
         headers: {
           "ngrok-skip-browser-warning": "true",
-          Authorization: `Bearer ${Cookies.get("token")}`, // <-- tambahkan token jika API ini butuh otentikasi
+          Authorization: `Bearer ${token}`,
         },
       }
     );
 
     const paymentMethodsResult = await paymentMethodsResponse.json();
-    console.log("Payment Methods Result:", paymentMethodsResult); // ✅ Sekarang benar
-
     paymentMethods.value = paymentMethodsResult;
-    console.log("Payment Methods:", paymentMethods.value);
   } catch (err) {
     console.error("Fetch failed:", err);
   }
@@ -637,6 +901,39 @@ watch(
     }
   }
 );
+
+watch(
+  () => selectedProducts.value,
+  (newSelectedProducts) => {
+    newSelectedProducts.forEach((productId, index) => {
+      ensureIndexExists(products, index);
+      ensureIndexExists(availableColors, index);
+
+      if (productId) {
+        const selectedProduct = products.value[index].find(
+          (product) => product.product_id === productId
+        );
+        if (
+          selectedProduct &&
+          Array.isArray(selectedProduct.available_colors)
+        ) {
+          availableColors.value[index] = selectedProduct.available_colors;
+        } else {
+          availableColors.value[index] = [];
+        }
+      } else {
+        availableColors.value[index] = [];
+      }
+    });
+  },
+  { deep: true }
+);
+
+function ensureIndexExists(array, index) {
+  if (!array.value[index]) {
+    array.value[index] = [];
+  }
+}
 </script>
 
 <style>

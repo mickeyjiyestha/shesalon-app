@@ -15,7 +15,7 @@ const login = async () => {
     });
 
     const response = await fetch(
-      "https://d6e5-180-254-225-118.ngrok-free.app/api/auth/login",
+      `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
       {
         method: "POST",
         headers: {

@@ -324,7 +324,6 @@
             </div>
           </div>
 
-          <!-- Payment Summary - Right Side -->
           <div class="md:col-span-1">
             <div class="bg-gray-50 rounded-xl p-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">
@@ -343,21 +342,47 @@
 
               <div v-if="selectedServices.length > 0" class="space-y-4">
                 <div
-                  v-for="serviceId in selectedServices"
+                  v-for="(serviceId, index) in selectedServices"
                   :key="serviceId"
-                  class="flex justify-between items-start"
+                  class="flex flex-col gap-2"
                   v-if="serviceId && getServiceById(serviceId)"
                 >
-                  <div>
+                  <!-- Base Service -->
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="font-medium text-gray-800">
+                        {{ getServiceById(serviceId)?.nama }}
+                        <span class="block text-sm text-gray-500"
+                          >Base Price</span
+                        >
+                      </p>
+                    </div>
                     <p class="font-medium text-gray-800">
-                      {{ getServiceById(serviceId)?.nama }}
+                      Rp{{
+                        Number(
+                          getServiceById(serviceId)?.harga
+                        ).toLocaleString()
+                      }}
                     </p>
                   </div>
-                  <p class="font-medium text-gray-800">
-                    Rp{{
-                      Number(getServiceById(serviceId)?.harga).toLocaleString()
-                    }}
-                  </p>
+
+                  <!-- Selected Product and Color (if applicable) -->
+                  <div
+                    v-if="getSelectedColor(index)"
+                    class="flex justify-between items-start pl-4 border-l-2 border-gray-200"
+                  >
+                    <div>
+                      <p class="text-sm text-gray-600">
+                        {{ getSelectedProduct(index)?.product?.nama }} -
+                        {{ getSelectedColor(index)?.nama }}
+                      </p>
+                    </div>
+                    <p class="text-sm font-medium text-gray-800">
+                      + Rp{{
+                        getAdditionalPrice(serviceId, index).toLocaleString()
+                      }}
+                    </p>
+                  </div>
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
@@ -423,6 +448,7 @@ import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const props = defineProps({
   isOpen: {
@@ -475,6 +501,46 @@ const getUniqueBrands = (index) => {
   return uniqueBrands;
 };
 
+const getSelectedProduct = (index) => {
+  if (!selectedProducts.value[index] || !products.value[index]) return null;
+  return products.value[index].find(
+    (product) => product.product_id === selectedProducts.value[index]
+  );
+};
+
+const getSelectedColor = (index) => {
+  if (!selectedColors.value[index] || !availableColors.value[index])
+    return null;
+  return availableColors.value[index].find(
+    (color) => color.color_id === selectedColors.value[index]
+  );
+};
+
+const getAdditionalPrice = (serviceId, index) => {
+  const service = getServiceById(serviceId);
+  if (!service || ![2, 3, 4].includes(service.kategori_id)) return 0;
+
+  const selectedColor = getSelectedColor(index);
+  if (!selectedColor) return 0;
+
+  // Calculate additional price (total price minus base price)
+  return selectedColor.harga_total - Number(service.harga);
+};
+
+const getServicePrice = (serviceId, index) => {
+  const service = getServiceById(serviceId);
+  if (!service) return 0;
+
+  const basePrice = Number(service.harga);
+
+  // For hair coloring services (categories 2, 3, 4)
+  if ([2, 3, 4].includes(service.kategori_id)) {
+    return basePrice + getAdditionalPrice(serviceId, index);
+  }
+
+  return basePrice;
+};
+
 const getProductsByBrand = (index) => {
   if (!products.value[index] || !selectedBrands.value[index]) return [];
   return products.value[index].filter(
@@ -523,7 +589,7 @@ const checkServiceCategory = async (index) => {
     try {
       const token = Cookies.get("token");
       const response = await fetch(
-        "https://e6dc-182-253-98-196.ngrok-free.app/api/products/hair/products",
+        `${API_BASE_URL}/api/products/hair/products`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -624,9 +690,9 @@ const formattedSelectedDate = computed(() => {
 });
 
 const totalPrice = computed(() => {
-  return selectedServices.value.reduce((sum, id) => {
-    const service = getServiceById(id);
-    return sum + (service ? Number(service.harga) : 0);
+  return selectedServices.value.reduce((sum, serviceId, index) => {
+    if (!serviceId) return sum;
+    return sum + getServicePrice(serviceId, index);
   }, 0);
 });
 
@@ -666,22 +732,19 @@ const availableTimes = [
 const createMidtransTransaction = async (bookingId) => {
   try {
     const token = Cookies.get("token");
-    const response = await fetch(
-      "https://e6dc-182-253-98-196.ngrok-free.app/api/transaksi",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
-          booking_id: bookingId,
-          kategori_transaksi_id: 2,
-          is_dp: paymentType.value === "dp",
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/transaksi`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify({
+        booking_id: bookingId,
+        kategori_transaksi_id: 2,
+        is_dp: paymentType.value === "dp",
+      }),
+    });
 
     const result = await response.json();
     if (!response.ok) {
@@ -806,18 +869,15 @@ const submitBooking = async () => {
 
     console.log("Sending booking payload:", bookingPayload); // For debugging
 
-    const response = await fetch(
-      "https://e6dc-182-253-98-196.ngrok-free.app/api/booking",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "69420",
-        },
-        body: JSON.stringify(bookingPayload),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/booking`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "69420",
+      },
+      body: JSON.stringify(bookingPayload),
+    });
 
     const result = await response.json();
     if (!response.ok) {
@@ -852,22 +912,19 @@ onMounted(async () => {
   try {
     const token = Cookies.get("token");
 
-    const servicesResponse = await fetch(
-      "https://e6dc-182-253-98-196.ngrok-free.app/api/layanan",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      }
-    );
+    const servicesResponse = await fetch(`${API_BASE_URL}/api/layanan`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
     const servicesResult = await servicesResponse.json();
     services.value = servicesResult;
     isServicesLoaded.value = true;
 
     const paymentMethodsResponse = await fetch(
-      "https://e6dc-182-253-98-196.ngrok-free.app/api/transaksikategori",
+      `${API_BASE_URL}/api/transaksikategori`,
       {
         headers: {
           "ngrok-skip-browser-warning": "true",

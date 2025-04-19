@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
 import ProfileDropdown from "@/components/ProfileDropdown.vue";
 import FaceScanner from "@/components/FaceScanner.vue";
+import LoginModal from "@/components/LoginModal.vue";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const router = useRouter();
@@ -12,6 +13,7 @@ const user = ref(null);
 const loading = ref(true);
 const errorMessage = ref("");
 const isBookingModalOpen = ref(false);
+const isLoginModalOpen = ref(false);
 
 const menuItems = ["Home", "Order", "Blog", "About", "Contact Us"];
 
@@ -30,11 +32,19 @@ const handleMenuClick = (item) => {
 };
 
 const openBookingModal = () => {
+  if (!user.value) {
+    isLoginModalOpen.value = true;
+    return;
+  }
   isBookingModalOpen.value = true;
 };
 
 const closeBookingModal = () => {
   isBookingModalOpen.value = false;
+};
+
+const closeLoginModal = () => {
+  isLoginModalOpen.value = false;
 };
 
 const fetchUser = async () => {
@@ -73,13 +83,11 @@ const logoutUser = async () => {
   try {
     const token = Cookies.get("token");
     if (!token) {
-      // If no token exists, just remove cookies and redirect
       Cookies.remove("token");
       router.push("/login");
       return;
     }
 
-    // Call the logout API
     const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: "POST",
       headers: {
@@ -87,7 +95,6 @@ const logoutUser = async () => {
         Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "69420",
       },
-      // Add an empty body or appropriate data if required by your API
       body: JSON.stringify({}),
     });
 
@@ -95,13 +102,11 @@ const logoutUser = async () => {
       console.error(`Logout failed: ${response.status}`);
     }
 
-    // Regardless of API response, remove the token and redirect
     Cookies.remove("token");
     user.value = null;
     router.push("/login");
   } catch (error) {
     console.error("Logout error:", error);
-    // Even if there's an error, still remove the token and redirect
     Cookies.remove("token");
     router.push("/login");
   }
@@ -342,6 +347,8 @@ onMounted(() => {
         </div>
       </div>
     </section>
+
+    <LoginModal :is-open="isLoginModalOpen" @close="closeLoginModal" />
 
     <BookingModal
       :is-open="isBookingModalOpen"

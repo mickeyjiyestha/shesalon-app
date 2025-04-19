@@ -1,36 +1,541 @@
-<script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { useNuxtApp } from "#app"; // ⬅️ Tambahkan ini
+<template>
+  <div class="face-scanner">
+    <button
+      @click="openModal"
+      class="scan-button group relative inline-flex items-center justify-center px-8 py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white transition-all duration-300 ease-out hover:scale-105"
+    >
+      <span
+        class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff5757] group-hover:translate-x-0 ease"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+      </span>
+      <span
+        class="absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease"
+        >Try Our AI Hair Stylist</span
+      >
+      <span class="relative invisible">Try Our AI Hair Stylist</span>
+    </button>
 
-const { $firestore } = useNuxtApp(); // ⬅️ Lalu ini
+    <!-- Camera Modal -->
+    <Teleport to="body">
+      <div
+        v-if="isModalOpen"
+        class="fixed inset-0 z-[9999] flex items-center justify-center"
+      >
+        <div
+          class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 md:p-8 w-full max-w-2xl shadow-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
+        >
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3
+                class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#F97474] to-[#ff5757] bg-clip-text text-transparent"
+              >
+                AI Hair Style Recommendation
+              </h3>
+              <p class="text-sm md:text-base text-gray-600 mt-2 font-medium">
+                Position your face within the frame or upload a photo
+              </p>
+            </div>
+            <button
+              @click="closeModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors duration-300 p-2 hover:bg-gray-100 rounded-full"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Tab Buttons -->
+          <div class="flex justify-center mb-6">
+            <div class="inline-flex rounded-full p-1 bg-gray-100">
+              <button
+                @click="activeTab = 'camera'"
+                class="px-6 py-2 rounded-full transition-all duration-300"
+                :class="[
+                  activeTab === 'camera'
+                    ? 'bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800',
+                ]"
+              >
+                <div class="flex items-center gap-2">
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    ></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    ></path>
+                  </svg>
+                  <span>Camera</span>
+                </div>
+              </button>
+              <button
+                @click="activeTab = 'upload'"
+                class="px-6 py-2 rounded-full transition-all duration-300"
+                :class="[
+                  activeTab === 'upload'
+                    ? 'bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800',
+                ]"
+              >
+                <div class="flex items-center gap-2">
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    ></path>
+                  </svg>
+                  <span>Upload</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Camera Tab -->
+          <div
+            v-if="activeTab === 'camera'"
+            class="relative mb-6 rounded-2xl overflow-hidden shadow-xl bg-gray-100"
+          >
+            <div class="relative" style="aspect-ratio: 4/3">
+              <video
+                ref="videoRef"
+                autoplay
+                playsinline
+                class="absolute inset-0 w-full h-full object-cover"
+              ></video>
+              <canvas
+                ref="guideCanvasRef"
+                class="absolute inset-0 w-full h-full pointer-events-none z-10"
+              ></canvas>
+              <canvas
+                ref="canvasRef"
+                class="absolute inset-0 w-full h-full"
+              ></canvas>
+
+              <div
+                v-if="isLoading && activeTab === 'camera'"
+                class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm"
+              >
+                <div class="text-center">
+                  <div
+                    class="animate-spin rounded-full h-12 w-12 border-4 border-t-[#F97474] border-gray-200 mb-4"
+                  ></div>
+                  <p class="text-lg font-medium text-gray-800">
+                    {{ scanningStatus }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Tab -->
+          <div v-if="activeTab === 'upload'" class="mb-6">
+            <div
+              class="rounded-2xl overflow-hidden shadow-xl bg-gray-100 transition-all duration-300"
+            >
+              <div
+                class="relative border-2 border-dashed border-gray-300 rounded-xl p-6"
+                :class="{ 'border-[#F97474]': isDragging }"
+                @dragenter.prevent="isDragging = true"
+                @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleFileDrop($event)"
+              >
+                <input
+                  type="file"
+                  ref="fileInputRef"
+                  @change="handleFileChange"
+                  accept="image/*"
+                  class="hidden"
+                />
+
+                <div v-if="!uploadedImage" class="text-center py-12">
+                  <svg
+                    class="mx-auto h-16 w-16 text-gray-400 mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    ></path>
+                  </svg>
+                  <p class="text-lg font-medium text-gray-700 mb-2">
+                    Drag and drop your photo here
+                  </p>
+                  <p class="text-gray-500 mb-4">or</p>
+                  <button
+                    @click="triggerFileInput"
+                    class="px-6 py-3 bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white rounded-full hover:shadow-lg transition-all duration-300"
+                  >
+                    Browse Files
+                  </button>
+                </div>
+
+                <!-- Preview of uploaded image -->
+                <div v-else class="relative overflow-hidden">
+                  <div class="relative" style="aspect-ratio: 4/3">
+                    <img
+                      :src="uploadedImage"
+                      alt="Uploaded face"
+                      class="w-full h-full object-cover rounded-lg"
+                    />
+                    <canvas
+                      ref="uploadCanvasRef"
+                      class="absolute inset-0 w-full h-full"
+                      style="display: none"
+                    ></canvas>
+                  </div>
+                  <button
+                    @click="clearUploadedImage"
+                    class="absolute top-3 right-3 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Loading overlay for upload tab -->
+                <div
+                  v-if="isLoading && activeTab === 'upload'"
+                  class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-xl"
+                >
+                  <div class="text-center">
+                    <div
+                      class="animate-spin rounded-full h-12 w-12 border-4 border-t-[#F97474] border-gray-200 mb-4"
+                    ></div>
+                    <p class="text-lg font-medium text-gray-800">
+                      {{ scanningStatus }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center space-y-4">
+            <p
+              v-if="scanningStatus"
+              class="text-gray-600 text-sm md:text-base font-medium"
+            >
+              {{ scanningStatus }}
+            </p>
+            <button
+              @click="startScan"
+              :disabled="
+                (activeTab === 'upload' && !uploadedImage) || isLoading
+              "
+              class="group relative inline-flex items-center justify-center px-8 py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white transition-all duration-300 ease-out hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span
+                class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff5757] group-hover:translate-x-0 ease"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </span>
+              <span
+                class="absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease"
+                >Analyze My Face Shape</span
+              >
+              <span class="relative invisible">Analyze My Face Shape</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Recommendations Modal -->
+    <Teleport to="body">
+      <div
+        v-if="isRecommendationModalOpen && currentRecommendation"
+        class="fixed inset-0 z-[10000] flex items-center justify-center"
+      >
+        <div
+          class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 w-full max-w-7xl shadow-2xl relative h-5/6"
+        >
+          <button
+            @click="closeRecommendationModal"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-300 p-2 hover:bg-gray-100 rounded-full"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+
+          <div class="text-center mb-6">
+            <h4
+              class="text-3xl font-bold bg-gradient-to-r from-[#F97474] to-[#ff5757] bg-clip-text text-transparent"
+            >
+              Recommended Hairstyles for {{ detectedFaceShape }} Face Shape
+            </h4>
+            <p class="text-gray-600 mt-2">
+              These styles are perfectly suited for your unique facial features
+            </p>
+          </div>
+
+          <div class="relative overflow-hidden px-12 h-4/5">
+            <!-- Carousel Container -->
+            <div class="relative h-full flex items-center">
+              <div
+                class="flex transition-transform duration-500 ease-in-out"
+                :style="{
+                  transform: `translateX(calc(50% - ${
+                    (currentRecommendationIndex + 0.5) * 33.333
+                  }%))`,
+                }"
+              >
+                <div
+                  v-for="(recommendation, index) in recommendations"
+                  :key="recommendation.id"
+                  class="w-1/3 flex-shrink-0 px-4 transition-all duration-500"
+                  :class="{
+                    'scale-100 opacity-100 z-10':
+                      index === currentRecommendationIndex,
+                    'scale-90 opacity-50': index !== currentRecommendationIndex,
+                  }"
+                >
+                  <div
+                    class="bg-white rounded-2xl shadow-xl overflow-hidden h-full"
+                  >
+                    <div class="relative" style="aspect-ratio: 3/4">
+                      <img
+                        :src="recommendation.image"
+                        :alt="recommendation.name"
+                        class="w-full h-full object-cover"
+                      />
+                      <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
+                      ></div>
+                    </div>
+                    <div class="p-6 bg-gradient-to-b from-white to-pink-50">
+                      <h5 class="text-2xl font-bold text-[#ff5757] mb-3">
+                        {{ recommendation.name }}
+                      </h5>
+                      <p class="text-gray-700 text-base leading-relaxed">
+                        {{ recommendation.description }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button
+              @click="showPreviousRecommendation"
+              class="absolute left-0 top-1/2 -translate-y-1/2 p-2 text-[#F97474] hover:bg-pink-50 rounded-full transition-all duration-300 disabled:opacity-30"
+              :disabled="currentRecommendationIndex === 0"
+            >
+              <svg
+                class="w-10 h-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+            <button
+              @click="showNextRecommendation"
+              class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#F97474] hover:bg-pink-50 rounded-full transition-all duration-300 disabled:opacity-30"
+              :disabled="
+                currentRecommendationIndex === recommendations.length - 1
+              "
+            >
+              <svg
+                class="w-10 h-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Navigation Dots -->
+          <div class="flex justify-center mt-6 gap-3">
+            <button
+              v-for="(_, index) in recommendations"
+              :key="index"
+              @click="currentRecommendationIndex = index"
+              class="w-4 h-4 rounded-full transition-all duration-300"
+              :class="[
+                index === currentRecommendationIndex
+                  ? 'bg-[#F97474] scale-125'
+                  : 'bg-gray-300 hover:bg-gray-400',
+              ]"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { useNuxtApp } from "#app";
+
+const { $firestore } = useNuxtApp();
 const isModalOpen = ref(false);
+const isRecommendationModalOpen = ref(false);
 const stream = ref(null);
 const videoRef = ref(null);
 const canvasRef = ref(null);
 const guideCanvasRef = ref(null);
+const uploadCanvasRef = ref(null);
+const fileInputRef = ref(null);
 const isLoading = ref(false);
 const scanningStatus = ref("");
-const recommendations = ref([]); // untuk hasil rekomendasi
+const recommendations = ref([]);
+const currentRecommendationIndex = ref(0);
+const detectedFaceShape = ref("");
+const activeTab = ref("camera");
+const uploadedImage = ref(null);
+const isDragging = ref(false);
 let animationFrameId = null;
+
+const currentRecommendation = computed(() => {
+  if (recommendations.value.length === 0) return null;
+  return recommendations.value[currentRecommendationIndex.value];
+});
+
+const showNextRecommendation = () => {
+  if (currentRecommendationIndex.value < recommendations.value.length - 1) {
+    currentRecommendationIndex.value++;
+  }
+};
+
+const showPreviousRecommendation = () => {
+  if (currentRecommendationIndex.value > 0) {
+    currentRecommendationIndex.value--;
+  }
+};
+
+const openRecommendationModal = () => {
+  // Close the camera modal when opening recommendations
+  closeModal();
+
+  isRecommendationModalOpen.value = true;
+  currentRecommendationIndex.value = 0;
+};
+
+const closeRecommendationModal = () => {
+  isRecommendationModalOpen.value = false;
+};
 
 const drawFaceGuide = (canvas) => {
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
 
-  // Bersihkan canvas
   ctx.clearRect(0, 0, width, height);
 
-  // Set style untuk guide
-  ctx.strokeStyle = "rgba(249, 116, 116, 0.5)"; // Warna merah muda transparan
-  ctx.lineWidth = 2;
+  // Create gradient for guide
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, "rgba(249, 116, 116, 0.3)");
+  gradient.addColorStop(1, "rgba(255, 87, 87, 0.3)");
 
-  // Gambar oval wajah
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 3;
+
   const centerX = width / 2;
   const centerY = height / 2;
   const faceWidth = width * 0.4;
   const faceHeight = height * 0.6;
+
+  // Draw outer glow
+  ctx.shadowColor = "rgba(249, 116, 116, 0.5)";
+  ctx.shadowBlur = 15;
 
   ctx.beginPath();
   ctx.ellipse(
@@ -44,9 +549,21 @@ const drawFaceGuide = (canvas) => {
   );
   ctx.stroke();
 
-  // Tambahkan teks panduan
-  ctx.fillStyle = "rgba(249, 116, 116, 0.7)";
-  ctx.font = "16px Arial";
+  // Reset shadow for text
+  ctx.shadowBlur = 0;
+
+  // Add guide text with gradient
+  const textGradient = ctx.createLinearGradient(
+    centerX - 100,
+    height - 40,
+    centerX + 100,
+    height - 20
+  );
+  textGradient.addColorStop(0, "#F97474");
+  textGradient.addColorStop(1, "#ff5757");
+
+  ctx.fillStyle = textGradient;
+  ctx.font = "600 16px 'Inter', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("Align your face within the frame", centerX, height - 30);
 };
@@ -57,7 +574,6 @@ const initializeGuideCanvas = () => {
   const video = videoRef.value;
   const guideCanvas = guideCanvasRef.value;
 
-  // Tunggu hingga video memiliki dimensi
   const checkDimensions = setInterval(() => {
     if (video.videoWidth && video.videoHeight) {
       clearInterval(checkDimensions);
@@ -70,6 +586,15 @@ const initializeGuideCanvas = () => {
 
 const openModal = async () => {
   isModalOpen.value = true;
+  activeTab.value = "camera";
+  uploadedImage.value = null;
+
+  if (activeTab.value === "camera") {
+    initializeCamera();
+  }
+};
+
+const initializeCamera = async () => {
   isLoading.value = true;
   scanningStatus.value = "Initializing camera...";
 
@@ -85,7 +610,7 @@ const openModal = async () => {
     if (videoRef.value) {
       videoRef.value.srcObject = stream.value;
       await videoRef.value.play();
-      initializeGuideCanvas(); // Inisialisasi guide canvas setelah video dimulai
+      initializeGuideCanvas();
     }
   } catch (error) {
     console.error("Error:", error);
@@ -103,22 +628,47 @@ const closeModal = () => {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
   }
+  uploadedImage.value = null;
 };
 
 const drawFaceShape = (ctx, detection) => {
   const { xcenter, ycenter, width, height } = detection;
 
-  ctx.strokeStyle = "#F97474";
-  ctx.lineWidth = 2;
+  // Create gradient for detection box
+  const gradient = ctx.createLinearGradient(
+    xcenter - width / 2,
+    ycenter - height / 2,
+    xcenter + width / 2,
+    ycenter + height / 2
+  );
+  gradient.addColorStop(0, "#F97474");
+  gradient.addColorStop(1, "#ff5757");
 
-  // Draw bounding box
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = "rgba(249, 116, 116, 0.5)";
+  ctx.shadowBlur = 10;
+
+  // Draw detection box
   ctx.beginPath();
   ctx.rect(xcenter - width / 2, ycenter - height / 2, width, height);
   ctx.stroke();
 
-  // Add face shape text
-  ctx.fillStyle = "#F97474";
-  ctx.font = "20px Arial";
+  // Reset shadow for text
+  ctx.shadowBlur = 0;
+
+  // Add detection text with gradient
+  const textGradient = ctx.createLinearGradient(
+    xcenter - width / 2,
+    ycenter - height / 2 - 20,
+    xcenter + width / 2,
+    ycenter - height / 2 - 20
+  );
+  textGradient.addColorStop(0, "#F97474");
+  textGradient.addColorStop(1, "#ff5757");
+
+  ctx.fillStyle = textGradient;
+  ctx.font = "600 20px 'Inter', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(
     `Face Shape: ${detection.name} (${Math.round(
@@ -130,19 +680,44 @@ const drawFaceShape = (ctx, detection) => {
 };
 
 const captureFace = async () => {
-  if (!videoRef.value || !canvasRef.value) return;
+  if (!canvasRef.value && !uploadCanvasRef.value) return;
 
-  const video = videoRef.value;
-  const canvas = canvasRef.value;
-  const ctx = canvas.getContext("2d");
+  let canvas;
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  if (activeTab.value === "camera") {
+    if (!videoRef.value) return;
 
-  // Capture current frame
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const video = videoRef.value;
+    canvas = canvasRef.value;
 
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  } else {
+    // Use the uploaded image
+    canvas = uploadCanvasRef.value;
+    const img = new Image();
+    img.onload = async () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      await processCapturedImage(canvas);
+    };
+    img.src = uploadedImage.value;
+    return; // Return early as we'll call processCapturedImage in the onload callback
+  }
+
+  await processCapturedImage(canvas);
+};
+
+const processCapturedImage = async (canvas) => {
   try {
     isLoading.value = true;
     scanningStatus.value = "Analyzing your face shape...";
@@ -170,15 +745,23 @@ const captureFace = async () => {
     console.log("API Response:", result);
 
     if (result.detections && result.detections.length > 0) {
-      // Sort detections by confidence and get the highest one
       const bestDetection = result.detections.sort(
         (a, b) => b.confidence - a.confidence
       )[0];
+
+      // Store the detected face shape
+      detectedFaceShape.value = bestDetection.name;
+
+      // Draw face shape on the canvas
+      const ctx = canvas.getContext("2d");
       drawFaceShape(ctx, bestDetection);
+
       scanningStatus.value = `Analysis complete! Your face shape is ${
         bestDetection.name
       } (${Math.round(bestDetection.confidence * 100)}% confidence)`;
+
       await getRecommendations(bestDetection.name);
+      openRecommendationModal();
     } else {
       scanningStatus.value = "No face detected. Please try again.";
     }
@@ -197,8 +780,6 @@ const startScan = () => {
 const getRecommendations = async (faceShape) => {
   try {
     console.log("Detected face shape:", faceShape);
-
-    // Ambil referensi koleksi berdasarkan bentuk wajah
     const shapeCollection = collection($firestore, faceShape.toLowerCase());
     const snapshot = await getDocs(shapeCollection);
 
@@ -217,138 +798,91 @@ const getRecommendations = async (faceShape) => {
   }
 };
 
-// Helper function to get all subcollections of a document
-const getSubcollections = async (docRef) => {
-  const subcollections = [];
-  const colRefs = await docRef.listCollections(); // Get subcollections
-  for (const colRef of colRefs) {
-    const snapshot = await getDocs(colRef); // Get all documents in each subcollection
-    snapshot.forEach((doc) => {
-      subcollections.push(doc.data()); // Collect data from each subdocument
-    });
+// File upload handling
+const triggerFileInput = () => {
+  if (fileInputRef.value) {
+    fileInputRef.value.click();
   }
-  return subcollections;
 };
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    processUploadedFile(file);
+  }
+};
+
+const handleFileDrop = (event) => {
+  isDragging.value = false;
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith("image/")) {
+    processUploadedFile(file);
+  } else {
+    scanningStatus.value = "Please upload an image file.";
+  }
+};
+
+const processUploadedFile = (file) => {
+  if (!file || !file.type.startsWith("image/")) {
+    scanningStatus.value = "Please upload a valid image file.";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedImage.value = e.target.result;
+    scanningStatus.value =
+      "Image uploaded successfully. Click 'Analyze' to continue.";
+
+    // Prepare the canvas for later use with the image
+    if (uploadCanvasRef.value) {
+      const canvas = uploadCanvasRef.value;
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+      };
+      img.src = uploadedImage.value;
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+const clearUploadedImage = () => {
+  uploadedImage.value = null;
+  if (fileInputRef.value) {
+    fileInputRef.value.value = "";
+  }
+  scanningStatus.value = "";
+};
+
+// Watch for tab changes to initialize camera or clean up
+watch(activeTab, (newTab) => {
+  if (newTab === "camera" && !stream.value) {
+    initializeCamera();
+  } else if (newTab === "upload") {
+    // Stop camera stream when switching to upload tab
+    if (stream.value) {
+      stream.value.getTracks().forEach((track) => track.stop());
+      stream.value = null;
+    }
+    scanningStatus.value = "";
+  }
+});
+
+// Clean up resources when component is unmounted
+onBeforeUnmount(() => {
+  if (stream.value) {
+    stream.value.getTracks().forEach((track) => track.stop());
+  }
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+});
+
+// Make sure to import watch
+import { watch } from "vue";
 </script>
-
-<template>
-  <div class="face-scanner">
-    <button
-      @click="openModal"
-      class="scan-button group relative inline-flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white rounded-full hover:shadow-xl transition-all duration-500 ease-out transform hover:scale-105 hover:from-[#ff5757] hover:to-[#F97474] w-auto"
-    >
-      <span class="text-lg font-semibold whitespace-nowrap"
-        >Try Our AI Hair Stylist</span
-      >
-    </button>
-
-    <Teleport to="body">
-      <div
-        v-if="isModalOpen"
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90 p-4"
-      >
-        <div
-          class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-2xl shadow-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
-        >
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h3
-                class="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#F97474] to-[#ff5757] bg-clip-text text-transparent"
-              >
-                AI Hair Style Recommendation
-              </h3>
-              <p class="text-sm md:text-base text-gray-600 mt-1">
-                Position your face within the frame
-              </p>
-            </div>
-            <button
-              @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colors duration-300"
-            >
-              <span class="material-icons">close</span>
-            </button>
-          </div>
-
-          <div
-            class="relative mb-6 rounded-xl overflow-hidden shadow-lg bg-gray-100"
-          >
-            <div class="relative" style="aspect-ratio: 4/3">
-              <video
-                ref="videoRef"
-                autoplay
-                playsinline
-                class="absolute inset-0 w-full h-full object-cover"
-              ></video>
-              <canvas
-                ref="guideCanvasRef"
-                class="absolute inset-0 w-full h-full pointer-events-none z-10"
-              ></canvas>
-              <canvas
-                ref="canvasRef"
-                class="absolute inset-0 w-full h-full"
-              ></canvas>
-
-              <div
-                v-if="isLoading"
-                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
-              >
-                <div class="text-center text-white">
-                  <div
-                    class="animate-spin rounded-full h-12 w-12 border-4 border-t-[#F97474] border-white mb-4"
-                  ></div>
-                  <p class="text-lg">{{ scanningStatus }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="text-center space-y-4">
-            <p v-if="scanningStatus" class="text-gray-600 text-sm md:text-base">
-              {{ scanningStatus }}
-            </p>
-            <button
-              @click="startScan"
-              class="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white rounded-full font-semibold hover:shadow-lg transform transition-all duration-300 hover:scale-105 hover:from-[#ff5757] hover:to-[#F97474]"
-            >
-              <span class="flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-camera"></i>
-                <span>Analyze My Face Shape</span>
-              </span>
-            </button>
-            <!-- Bagian hasil rekomendasi -->
-            <!-- Hasil Rekomendasi -->
-            <div v-if="recommendations.length" class="mt-8">
-              <h4 class="text-xl font-semibold text-center mb-4 text-[#F97474]">
-                Recommended Hairstyles for You
-              </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div
-                  v-for="style in recommendations"
-                  :key="style.id"
-                  class="bg-white rounded-xl shadow-md overflow-hidden"
-                >
-                  <img
-                    :src="style.image"
-                    alt="Recommended style"
-                    class="w-full h-56 object-cover"
-                  />
-                  <div class="p-4 space-y-2">
-                    <h5 class="text-lg font-semibold text-[#ff5757]">
-                      {{ style.name }}
-                    </h5>
-                    <p class="text-gray-600 text-sm">
-                      {{ style.description }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-  </div>
-</template>
 
 <style scoped>
 .face-scanner {
@@ -362,24 +896,15 @@ const getSubcollections = async (docRef) => {
   min-width: 200px;
 }
 
-.material-icons {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-}
-
-@media (max-width: 640px) {
-  .material-icons {
-    font-size: 20px;
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>

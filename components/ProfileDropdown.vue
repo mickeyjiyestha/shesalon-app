@@ -7,7 +7,7 @@
       class="w-10 h-10 rounded-full cursor-pointer border-2 border-white hover:border-[#F97474] transition duration-300 z-10"
     />
 
-    <!-- Panah dengan animasi rotasi -->
+    <!-- Arrow with rotation animation -->
     <svg
       @click="toggleDropdown"
       xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,6 @@
         transformOrigin: 'center',
       }"
     >
-      >
       <path
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -39,7 +38,7 @@
       </a>
       <a
         href="#"
-        @click.prevent="logout"
+        @click.prevent="handleLogout"
         class="block px-4 py-2 hover:bg-gray-100 transition"
       >
         Logout
@@ -50,11 +49,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
+
+const props = defineProps({
+  user: Object,
+});
 
 const emit = defineEmits(["logout"]);
 const isDropdownOpen = ref(false);
-const router = useRouter();
 
 // Toggle dropdown visibility
 const toggleDropdown = () => {
@@ -70,10 +71,9 @@ const closeDropdown = (event) => {
 };
 
 // Handle logout
-const logout = () => {
+const handleLogout = () => {
   emit("logout");
-  closeDropdown();
-  router.push("/login");
+  isDropdownOpen.value = false;
 };
 
 // Add event listener on mount and remove it on unmount

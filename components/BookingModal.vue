@@ -92,7 +92,7 @@
                     >
                       <option value="">Pilih Service</option>
                       <option
-                        v-for="service in services"
+                        v-for="service in getAvailableServices(index)"
                         :key="service.id"
                         :value="service.id"
                       >
@@ -486,6 +486,13 @@ const shouldShowProducts = (index) => {
   return service && [2, 3, 4].includes(service.kategori_id);
 };
 
+const isCategorySelected = (categoryId) => {
+  return selectedServices.value.some((serviceId, currentIndex) => {
+    const service = services.value.find((s) => s.id === serviceId);
+    return service && service.kategori_id === categoryId;
+  });
+};
+
 const getUniqueBrands = (index) => {
   if (!products.value[index]) return [];
   const uniqueBrands = [];
@@ -535,7 +542,11 @@ const getServicePrice = (serviceId, index) => {
 
   // For hair coloring services (categories 2, 3, 4)
   if ([2, 3, 4].includes(service.kategori_id)) {
-    return basePrice + getAdditionalPrice(serviceId, index);
+    const selectedColor = getSelectedColor(index);
+    if (selectedColor) {
+      // Return the sum of base service price and product's total price
+      return basePrice + selectedColor.harga_total;
+    }
   }
 
   return basePrice;
@@ -585,6 +596,21 @@ const checkServiceCategory = async (index) => {
   }
 
   const service = services.value.find((s) => s.id === serviceId);
+
+  const isAlreadySelected = selectedServices.value.some(
+    (otherServiceId, otherIndex) => {
+      if (index === otherIndex) return false;
+      const otherService = services.value.find((s) => s.id === otherServiceId);
+      return otherService && otherService.kategori_id === service.kategori_id;
+    }
+  );
+
+  if (isAlreadySelected) {
+    alert("Service dengan kategori yang sama sudah dipilih");
+    selectedServices.value[index] = "";
+    return;
+  }
+
   if (service && [2, 3, 4].includes(service.kategori_id)) {
     try {
       const token = Cookies.get("token");
@@ -605,7 +631,6 @@ const checkServiceCategory = async (index) => {
       const result = await response.json();
       products.value[index] = result.data;
 
-      // Reset selections
       selectedBrands.value[index] = "";
       selectedProducts.value[index] = "";
       selectedColors.value[index] = "";
@@ -806,6 +831,19 @@ const formatDateForAPI = (date) => {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+const getAvailableServices = (currentIndex) => {
+  // Create a set of already selected service IDs (excluding the current index)
+  const selectedIds = new Set();
+  selectedServices.value.forEach((serviceId, index) => {
+    if (index !== currentIndex && serviceId) {
+      selectedIds.add(serviceId);
+    }
+  });
+
+  // Return services that haven't been selected yet
+  return services.value.filter((service) => !selectedIds.has(service.id));
 };
 
 const formatTimeForAPI = (time) => {

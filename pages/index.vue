@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "vue-router";
 import ProfileDropdown from "@/components/ProfileDropdown.vue";
 import FaceScanner from "@/components/FaceScanner.vue";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const router = useRouter();
 const isMenuOpen = ref(false);
@@ -43,17 +44,14 @@ const fetchUser = async () => {
       throw new Error("Token not found");
     }
 
-    const response = await fetch(
-      "https://b05a-182-253-98-194.ngrok-free.app/api/auth/profile",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "69420",
-        },
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "69420",
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch user data");
@@ -62,12 +60,50 @@ const fetchUser = async () => {
     const result = await response.json();
     console.log("Response API:", result);
 
-    user.value = result.user;
+    user.value = result;
   } catch (error) {
     errorMessage.value = error.message;
     console.error("Fetch user error:", error);
   } finally {
     loading.value = false;
+  }
+};
+
+const logoutUser = async () => {
+  try {
+    const token = Cookies.get("token");
+    if (!token) {
+      // If no token exists, just remove cookies and redirect
+      Cookies.remove("token");
+      router.push("/login");
+      return;
+    }
+
+    // Call the logout API
+    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "69420",
+      },
+      // Add an empty body or appropriate data if required by your API
+      body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+      console.error(`Logout failed: ${response.status}`);
+    }
+
+    // Regardless of API response, remove the token and redirect
+    Cookies.remove("token");
+    user.value = null;
+    router.push("/login");
+  } catch (error) {
+    console.error("Logout error:", error);
+    // Even if there's an error, still remove the token and redirect
+    Cookies.remove("token");
+    router.push("/login");
   }
 };
 

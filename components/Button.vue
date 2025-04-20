@@ -11,7 +11,7 @@ const props = defineProps({
 
 <template>
   <button
-    class="flex justify-center items-center rounded-xl bg-[#F97474] px-50 py-3 mt-7 text-white"
+    class="flex justify-center items-center rounded-lg md:rounded-xl bg-[#f6339a] w-full px-4 py-2 md:py-3 mt-4 md:mt-7 text-sm md:text-base font-medium text-white transition-all hover:bg-[#e56666] active:bg-[#d85a5a]"
   >
     {{ buttonText }}
   </button>

@@ -291,8 +291,7 @@ onMounted(() => {
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-10">
         What is
-        <span
-          class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
+        <span class="text-pink-600 transition-colors duration-300"
           >She Salon?</span
         >
       </p>
@@ -313,10 +312,7 @@ onMounted(() => {
     <div class="flex justify-center slide-in from-bottom px-4 md:px-0">
       <p class="text-3xl md:text-4xl font-semibold mb-20 md:mb-30">
         Our
-        <span
-          class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
-          >Services</span
-        >
+        <span class="text-pink-600">Services</span>
       </p>
     </div>
 
@@ -326,7 +322,7 @@ onMounted(() => {
       class="flex items-center justify-center -mt-10 md:-mt-20 mb-40 md:mb-60 px-4 md:px-0"
     >
       <button
-        class="flex justify-center items-center rounded-xl bg-[#F97474] hover:bg-[#ff5757] px-20 md:px-50 py-3 mt-7 text-white transition-all duration-300 ease-out hover:shadow-lg hover:scale-105 transform"
+        class="flex justify-center items-center rounded-xl bg-pink-500 hover:bg-pink-600 px-20 md:px-50 py-3 mt-7 text-white transition-all duration-300 ease-out hover:shadow-lg hover:scale-105 transform"
         @click="openBookingModal"
       >
         Book Now

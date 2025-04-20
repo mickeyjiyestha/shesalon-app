@@ -21,7 +21,7 @@
           Testimonial
         </p>
         <h2
-          class="text-[28px] md:text-[40px] font-medium text-[#F97474] mb-4"
+          class="text-[28px] md:text-[40px] font-medium text-[#f6339a] mb-4"
           v-motion-visible
           :initial="{ opacity: 0, x: -100 }"
           :enter="{
@@ -72,7 +72,7 @@
         </p>
         <button
           @click="openModal"
-          class="border border-pink-400 text-[#F97474] px-6 py-2 rounded-full flex items-center gap-2 hover:bg-pink-50 transition-all duration-300"
+          class="border border-pink-400 text-[#f6339a] px-6 py-2 rounded-full flex items-center gap-2 hover:bg-pink-50 transition-all duration-300"
           v-motion-visible
           :initial="{ opacity: 0, scale: 0.8 }"
           :enter="{
@@ -83,7 +83,7 @@
         >
           Write your experience
           <span
-            class="bg-[#F97474] text-white w-7 h-7 flex items-center justify-center rounded-full"
+            class="bg-[#f6339a] text-white w-7 h-7 flex items-center justify-center rounded-full"
             >→</span
           >
         </button>
@@ -120,7 +120,7 @@
               <p class="text-gray-900 font-bold mt-2">
                 {{ testimonials[currentIndex].name }}
               </p>
-              <div class="flex text-[#F97474] mt-1">
+              <div class="flex text-[#f6339a] mt-1">
                 <TransitionGroup name="star">
                   <span
                     v-for="star in testimonials[currentIndex].rating"
@@ -135,7 +135,7 @@
           <!-- Navigation Arrow -->
           <button
             @click="nextTestimonial"
-            class="absolute right-0 md:right-[-40px] top-1/2 transform -translate-y-1/2 bg-[#F97474] text-white w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md hover:bg-[#e56363] transition-colors duration-300 z-20"
+            class="absolute right-0 md:right-[-40px] top-1/2 transform -translate-y-1/2 bg-[#f6339a] text-white w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md hover:bg-[#e56363] transition-colors duration-300 z-20"
           >
             →
           </button>

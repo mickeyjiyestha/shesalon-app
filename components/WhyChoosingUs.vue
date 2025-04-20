@@ -5,7 +5,7 @@
     <p class="text-3xl md:text-4xl font-semibold">
       Why is
       <span
-        class="text-[#F97474] hover:text-[#ff5757] transition-colors duration-300"
+        class="text-[#f6339a] hover:text-[#f6339a] transition-colors duration-300"
         >Choosing Us</span
       >
     </p>
@@ -27,7 +27,7 @@
       class="shadow-xl p-5 py-18 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in"
     >
       <div
-        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
+        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#f6339a] rounded-full z-20 p-3 hover:bg-[#f6339a] transition-colors duration-300"
       >
         <img
           src="~/assets/images/barbershop.png"
@@ -50,7 +50,7 @@
       class="shadow-xl p-5 py-15 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in delay-200"
     >
       <div
-        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
+        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#f6339a] rounded-full z-20 p-3 hover:bg-[#f6339a] transition-colors duration-300"
       >
         <img
           src="~/assets/images/barbershop.png"
@@ -73,7 +73,7 @@
       class="shadow-xl p-5 py-15 rounded-3xl text-center relative bg-white z-10 w-full md:w-auto hover:shadow-2xl transition-all duration-500 ease-out hover:translate-y-[-10px] scale-in delay-400"
     >
       <div
-        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#F97474] rounded-full z-20 p-3 hover:bg-[#ff5757] transition-colors duration-300"
+        class="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#f6339a] rounded-full z-20 p-3 hover:bg-[#f6339a] transition-colors duration-300"
       >
         <img
           src="~/assets/images/barbershop.png"

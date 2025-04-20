@@ -7,6 +7,10 @@
       <!-- Modal -->
       <div class="relative bg-white rounded-lg p-8 max-w-md w-full shadow-xl">
         <div class="text-center">
+          <iframe
+            style="margin-left: 45px"
+            src="https://lottie.host/embed/5bedc9cc-3901-411e-b977-556ea6ba506f/noqJevWX65.lottie"
+          ></iframe>
           <h3 class="text-xl font-semibold text-gray-900 mb-4">
             Login Required
           </h3>
@@ -26,6 +30,8 @@
 </template>
 
 <script setup>
+import lockGif from "~/assets/images/gif.webm";
+
 defineProps({
   isOpen: {
     type: Boolean,

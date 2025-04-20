@@ -257,6 +257,18 @@
                 </button>
               </div>
 
+              <div class="mt-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2"
+                  >Special Request</label
+                >
+                <textarea
+                  v-model="specialRequest"
+                  rows="3"
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F97474] focus:border-transparent transition-all duration-200"
+                  placeholder="Leave a message for the salon"
+                ></textarea>
+              </div>
+
               <div>
                 <label class="block text-gray-700 text-sm font-medium mb-2"
                   >Payment Method</label
@@ -422,7 +434,7 @@
   </div>
 
   <div
-    v-if="showMidtransModal"
+    v-if="showMidtransModal && isCashlessSelected"
     class="fixed inset-0 z-[60] flex items-center justify-center"
   >
     <div class="fixed inset-0 bg-black/60" @click="closeMidtransModal"></div>
@@ -472,6 +484,7 @@ const selectedProducts = ref([]);
 const selectedColors = ref([]);
 const products = ref([]);
 const availableColors = ref([]);
+const specialRequest = ref("");
 
 const showMidtransModal = ref(false);
 const midtransUrl = ref("");
@@ -766,8 +779,8 @@ const createMidtransTransaction = async (bookingId) => {
       },
       body: JSON.stringify({
         booking_id: bookingId,
-        kategori_transaksi_id: 2,
-        is_dp: paymentType.value === "dp",
+        kategori_transaksi_id: isCashlessSelected.value ? 2 : 1,
+        ...(isCashlessSelected.value && { is_dp: paymentType.value === "dp" }),
       }),
     });
 
@@ -867,7 +880,6 @@ const submitBooking = async () => {
       return;
     }
 
-    // Check if hair coloring service is selected but color/brand isn't
     const hasIncompleteHairColorService = selectedServices.value.some(
       (serviceId, index) => {
         const service = getServiceById(serviceId);
@@ -884,20 +896,18 @@ const submitBooking = async () => {
       return;
     }
 
-    // Base booking payload
     const bookingPayload = {
       layanan_id: selectedServices.value.filter((id) => id !== ""),
       tanggal: formatDateForAPI(selectedDate.value),
       jam_mulai: formatTimeForAPI(bookingTime.value),
+      special_request: specialRequest.value,
     };
 
-    // Find hair coloring service if present
     const colorServiceIndex = selectedServices.value.findIndex((serviceId) => {
       const service = getServiceById(serviceId);
       return service && [2, 3, 4].includes(service.kategori_id);
     });
 
-    // If hair coloring service exists, add the required hair_color data
     if (colorServiceIndex !== -1) {
       bookingPayload.hair_color = {
         color_id: selectedColors.value[colorServiceIndex],
@@ -905,8 +915,7 @@ const submitBooking = async () => {
       };
     }
 
-    console.log("Sending booking payload:", bookingPayload); // For debugging
-
+    // Create booking
     const response = await fetch(`${API_BASE_URL}/api/booking`, {
       method: "POST",
       headers: {
@@ -922,22 +931,27 @@ const submitBooking = async () => {
       throw new Error(result.message || "Gagal melakukan booking.");
     }
 
-    if (isCashlessSelected.value) {
-      try {
-        const transactionResult = await createMidtransTransaction(
-          result.booking_id
-        );
-        midtransUrl.value = transactionResult.snap_url;
-        showMidtransModal.value = true;
-        setupMidtransCallback();
-      } catch (error) {
-        console.error("Error creating transaction:", error);
-        alert("Gagal membuat transaksi pembayaran. Silakan coba lagi.");
+    // Create transaction
+    try {
+      const transactionResult = await createMidtransTransaction(
+        result.booking_id
+      );
+
+      // For cash payments, show success message and close modal
+      if (!isCashlessSelected.value) {
+        alert(`✅ Booking berhasil dibuat (#${result.booking_number})`);
+        close();
         navigateToHome();
+        return;
       }
-    } else {
-      alert(`✅ ${result.message} (#${result.booking_number})`);
-      close();
+
+      // For cashless payments, show Midtrans modal
+      midtransUrl.value = transactionResult.snap_url;
+      showMidtransModal.value = true;
+      setupMidtransCallback();
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("Gagal membuat transaksi pembayaran. Silakan coba lagi.");
       navigateToHome();
     }
   } catch (error) {

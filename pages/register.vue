@@ -39,17 +39,20 @@ const registerUser = async () => {
 
   try {
     const response = await fetch(
-      "https://42e4-182-253-51-55.ngrok-free.app/api/auth/register",
+      `${import.meta.env.VITE_API_BASE_URL}/api/auth/register`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
+        },
         body: JSON.stringify({
           fullname: fullname.value,
           email: email.value,
           phone_number: phone_number.value,
           username: username.value,
           password: password.value,
-          confirmation_password: confirmPassword.value, // Tambahkan ini
+          confirmation_password: confirmPassword.value,
           address: address.value,
         }),
       }
@@ -77,29 +80,33 @@ const registerUser = async () => {
 <template>
   <AuthLayout>
     <template #form>
-      <div class="w-full px-4 md:px-0 max-w-xl mx-auto">
+      <div class="w-full px-4 md:px-8 max-w-xl mx-auto py-6 md:py-0">
         <p
-          class="text-4xl md:text-5xl font-semibold text-[#F97474] mb-8 md:mb-20"
+          class="text-3xl md:text-5xl font-semibold text-[#f6339a] mb-6 md:mb-10 text-center md:text-left"
         >
           Register
         </p>
 
         <!-- Feedback messages -->
-        <p v-if="errorMessage" class="text-red-500 mb-4">{{ errorMessage }}</p>
-        <p v-if="successMessage" class="text-green-500 mb-4">
-          {{ successMessage }}
-        </p>
+        <div class="mb-4">
+          <p v-if="errorMessage" class="text-red-500 text-sm md:text-base">
+            {{ errorMessage }}
+          </p>
+          <p v-if="successMessage" class="text-green-500 text-sm md:text-base">
+            {{ successMessage }}
+          </p>
+        </div>
 
         <input-box
           label="Full Name"
           v-model="fullname"
           type="text"
           placeholder="Enter your full name"
-          class="w-full md:w-[50%]"
+          class="w-full mb-3"
         ></input-box>
 
         <div
-          class="flex flex-col md:flex-row w-full md:w-[50%] gap-y-4 md:gap-y-0 md:gap-x-4"
+          class="flex flex-col md:flex-row w-full gap-y-3 md:gap-y-0 md:gap-x-4 mb-3"
         >
           <input-box
             label="Username"
@@ -122,14 +129,14 @@ const registerUser = async () => {
           v-model="phone_number"
           type="text"
           placeholder="Enter your phone number"
-          class="w-full md:w-[50%]"
+          class="w-full mb-3"
         ></input-box>
         <input-box
           label="Address"
           v-model="address"
           type="text"
           placeholder="Enter your address"
-          class="w-full md:w-[50%]"
+          class="w-full mb-3"
         ></input-box>
 
         <input-box
@@ -137,19 +144,19 @@ const registerUser = async () => {
           v-model="password"
           type="password"
           placeholder="Enter your password"
-          class="w-full md:w-[50%]"
+          class="w-full mb-3"
         ></input-box>
         <input-box
           label="Confirm Password"
           v-model="confirmPassword"
           type="password"
           placeholder="Enter your password confirmation"
-          class="w-full md:w-[50%]"
+          class="w-full mb-4"
         ></input-box>
 
         <button
           @click="registerUser"
-          class="w-full md:w-[50%] bg-[#F97474] text-white py-2 rounded-lg mt-5 hover:bg-red-600 transition"
+          class="w-full bg-[#f6339a] text-white py-2 md:py-3 rounded-lg font-medium text-sm md:text-base hover:bg-red-600 transition"
         >
           Register
         </button>
@@ -157,26 +164,36 @@ const registerUser = async () => {
         <p class="mt-5 text-sm md:text-base text-center">
           Already have an account?
           <NuxtLink to="/login">
-            <span class="text-[#F97474]">Login</span>
+            <span class="text-[#f6339a] font-medium">Login</span>
           </NuxtLink>
         </p>
       </div>
     </template>
 
     <template #background-content>
-      <img
-        class="w-24 md:w-40 absolute top-5 left-5"
-        src="~/assets/images/shesalon-logo.png"
-        alt="She Salon Logo"
-      />
-      <div class="px-4 md:px-0">
-        <p class="text-center text-4xl md:text-6xl font-bold text-white">
-          Hello, Welcome
-        </p>
-        <p class="text-lg md:text-xl text-white text-center mt-3 md:mt-5">
-          Enter your Personal information to <br />
-          create your account
-        </p>
+      <div
+        class="w-full h-full flex flex-col justify-start items-center relative"
+      >
+        <!-- Logo di pojok kiri atas -->
+        <div class="absolute top-4 left-4 z-10">
+          <img
+            class="h-8 md:h-12"
+            src="~/assets/images/shesalon-logo.png"
+            alt="She Salon Logo"
+          />
+        </div>
+
+        <!-- Welcome message di tengah -->
+        <div
+          class="text-center px-4 mt-20 md:mt-0 md:flex md:flex-col md:justify-center md:h-full"
+        >
+          <p class="text-3xl md:text-6xl font-bold text-white">
+            Hello, Welcome
+          </p>
+          <p class="text-base md:text-xl text-white mt-2 md:mt-5">
+            Enter your Personal information to create your account
+          </p>
+        </div>
       </div>
     </template>
   </AuthLayout>

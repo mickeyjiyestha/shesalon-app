@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       <!-- Info Section -->
       <div class="fade-in">
-        <h2 class="text-5xl font-extrabold text-[#F97474] mb-6">
+        <h2 class="text-5xl font-extrabold text-[#f6339a] mb-6">
           Get in Touch
         </h2>
         <p class="text-gray-700 text-lg leading-relaxed mb-6">
@@ -12,15 +12,15 @@
         </p>
         <div class="space-y-5">
           <div class="flex items-center space-x-4">
-            <i class="fas fa-map-marker-alt text-[#F97474] text-2xl"></i>
+            <i class="fas fa-map-marker-alt text-[#f6339a] text-2xl"></i>
             <span class="text-gray-700 text-lg">Jl. Pratama No.95B, Bali</span>
           </div>
           <div class="flex items-center space-x-4">
-            <i class="fas fa-phone-alt text-[#F97474] text-2xl"></i>
+            <i class="fas fa-phone-alt text-[#f6339a] text-2xl"></i>
             <span class="text-gray-700 text-lg">+62 812-3456-7890</span>
           </div>
           <div class="flex items-center space-x-4">
-            <i class="fas fa-envelope text-[#F97474] text-2xl"></i>
+            <i class="fas fa-envelope text-[#f6339a] text-2xl"></i>
             <span class="text-gray-700 text-lg">contact@shesalon.com</span>
           </div>
         </div>
@@ -69,7 +69,7 @@
           </div>
           <button
             type="submit"
-            class="w-full bg-[#F97474] text-white text-lg font-semibold py-3 rounded-lg hover:bg-[#e06464] transition duration-300"
+            class="w-full bg-[#f6339a] text-white text-lg font-semibold py-3 rounded-lg hover:bg-[#e06464] transition duration-300"
           >
             Send Message
           </button>
@@ -105,7 +105,7 @@ const handleSubmit = () => {
   transition: border-color 0.3s ease-in-out;
 }
 .input-field:focus {
-  border-color: #f97474;
+  border-color: #f6339a;
   box-shadow: 0 0 5px rgba(249, 116, 116, 0.3);
 }
 .fade-in {

@@ -2,13 +2,13 @@
   <div class="face-scanner">
     <button
       @click="openModal"
-      class="scan-button group relative inline-flex items-center justify-center px-8 py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white transition-all duration-300 ease-out hover:scale-105"
+      class="scan-button group relative inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#f6339a] to-[#f6339a] text-white transition-all duration-300 ease-out hover:scale-105"
     >
       <span
-        class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff5757] group-hover:translate-x-0 ease"
+        class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-pink-500 group-hover:translate-x-0 ease"
       >
         <svg
-          class="w-6 h-6"
+          class="w-5 h-5 sm:w-6 sm:h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -23,38 +23,42 @@
         </svg>
       </span>
       <span
-        class="absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease"
+        class="absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease text-sm sm:text-base"
         >Try Our AI Hair Stylist</span
       >
-      <span class="relative invisible">Try Our AI Hair Stylist</span>
+      <span class="relative invisible text-sm sm:text-base"
+        >Try Our AI Hair Stylist</span
+      >
     </button>
 
     <!-- Camera Modal -->
     <Teleport to="body">
       <div
         v-if="isModalOpen"
-        class="fixed inset-0 z-[9999] flex items-center justify-center"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       >
         <div
-          class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 md:p-8 w-full max-w-2xl shadow-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
+          class="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-2xl shadow-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
         >
-          <div class="flex justify-between items-center mb-6">
+          <div class="flex justify-between items-center mb-4 sm:mb-6">
             <div>
               <h3
-                class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#F97474] to-[#ff5757] bg-clip-text text-transparent"
+                class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#f6339a] to-[#db2777] bg-clip-text text-transparent"
               >
                 AI Hair Style Recommendation
               </h3>
-              <p class="text-sm md:text-base text-gray-600 mt-2 font-medium">
+              <p
+                class="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2 font-medium"
+              >
                 Position your face within the frame or upload a photo
               </p>
             </div>
             <button
               @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colors duration-300 p-2 hover:bg-gray-100 rounded-full"
+              class="text-gray-400 hover:text-gray-600 transition-colors duration-300 p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
             >
               <svg
-                class="w-6 h-6"
+                class="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -70,20 +74,20 @@
           </div>
 
           <!-- Tab Buttons -->
-          <div class="flex justify-center mb-6">
+          <div class="flex justify-center mb-4 sm:mb-6">
             <div class="inline-flex rounded-full p-1 bg-gray-100">
               <button
                 @click="activeTab = 'camera'"
-                class="px-6 py-2 rounded-full transition-all duration-300"
+                class="px-4 sm:px-6 py-2 rounded-full transition-all duration-300 text-sm sm:text-base"
                 :class="[
                   activeTab === 'camera'
-                    ? 'bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white shadow-md'
+                    ? 'bg-gradient-to-r from-[#f6339a] to-[#db2777] text-white shadow-md'
                     : 'text-gray-600 hover:text-gray-800',
                 ]"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 sm:gap-2">
                   <svg
-                    class="w-5 h-5"
+                    class="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -106,16 +110,16 @@
               </button>
               <button
                 @click="activeTab = 'upload'"
-                class="px-6 py-2 rounded-full transition-all duration-300"
+                class="px-4 sm:px-6 py-2 rounded-full transition-all duration-300 text-sm sm:text-base"
                 :class="[
                   activeTab === 'upload'
-                    ? 'bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white shadow-md'
+                    ? 'bg-gradient-to-r from-[#f6339a] to-[#db2777] text-white shadow-md'
                     : 'text-gray-600 hover:text-gray-800',
                 ]"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 sm:gap-2">
                   <svg
-                    class="w-5 h-5"
+                    class="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -136,7 +140,7 @@
           <!-- Camera Tab -->
           <div
             v-if="activeTab === 'camera'"
-            class="relative mb-6 rounded-2xl overflow-hidden shadow-xl bg-gray-100"
+            class="relative mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-gray-100"
           >
             <div class="relative" style="aspect-ratio: 4/3">
               <video
@@ -160,9 +164,9 @@
               >
                 <div class="text-center">
                   <div
-                    class="animate-spin rounded-full h-12 w-12 border-4 border-t-[#F97474] border-gray-200 mb-4"
+                    class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-4 border-t-[#f6339a] border-gray-200 mb-3 sm:mb-4"
                   ></div>
-                  <p class="text-lg font-medium text-gray-800">
+                  <p class="text-base sm:text-lg font-medium text-gray-800">
                     {{ scanningStatus }}
                   </p>
                 </div>
@@ -171,13 +175,13 @@
           </div>
 
           <!-- Upload Tab -->
-          <div v-if="activeTab === 'upload'" class="mb-6">
+          <div v-if="activeTab === 'upload'" class="mb-4 sm:mb-6">
             <div
-              class="rounded-2xl overflow-hidden shadow-xl bg-gray-100 transition-all duration-300"
+              class="rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-gray-100 transition-all duration-300"
             >
               <div
-                class="relative border-2 border-dashed border-gray-300 rounded-xl p-6"
-                :class="{ 'border-[#F97474]': isDragging }"
+                class="relative border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6"
+                :class="{ 'border-[#f6339a]': isDragging }"
                 @dragenter.prevent="isDragging = true"
                 @dragover.prevent="isDragging = true"
                 @dragleave.prevent="isDragging = false"
@@ -191,9 +195,9 @@
                   class="hidden"
                 />
 
-                <div v-if="!uploadedImage" class="text-center py-12">
+                <div v-if="!uploadedImage" class="text-center py-8 sm:py-12">
                   <svg
-                    class="mx-auto h-16 w-16 text-gray-400 mb-4"
+                    class="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mb-3 sm:mb-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -205,13 +209,15 @@
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                     ></path>
                   </svg>
-                  <p class="text-lg font-medium text-gray-700 mb-2">
+                  <p
+                    class="text-base sm:text-lg font-medium text-gray-700 mb-2"
+                  >
                     Drag and drop your photo here
                   </p>
                   <p class="text-gray-500 mb-4">or</p>
                   <button
                     @click="triggerFileInput"
-                    class="px-6 py-3 bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white rounded-full hover:shadow-lg transition-all duration-300"
+                    class="px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#f6339a] to-[#db2777] text-white rounded-full hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
                   >
                     Browse Files
                   </button>
@@ -233,10 +239,10 @@
                   </div>
                   <button
                     @click="clearUploadedImage"
-                    class="absolute top-3 right-3 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300"
+                    class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/50 text-white p-1.5 sm:p-2 rounded-full hover:bg-black/70 transition-all duration-300"
                   >
                     <svg
-                      class="w-5 h-5"
+                      class="w-4 h-4 sm:w-5 sm:h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -258,9 +264,9 @@
                 >
                   <div class="text-center">
                     <div
-                      class="animate-spin rounded-full h-12 w-12 border-4 border-t-[#F97474] border-gray-200 mb-4"
+                      class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-4 border-t-[#f6339a] border-gray-200 mb-3 sm:mb-4"
                     ></div>
-                    <p class="text-lg font-medium text-gray-800">
+                    <p class="text-base sm:text-lg font-medium text-gray-800">
                       {{ scanningStatus }}
                     </p>
                   </div>
@@ -269,10 +275,10 @@
             </div>
           </div>
 
-          <div class="text-center space-y-4">
+          <div class="text-center space-y-3 sm:space-y-4">
             <p
               v-if="scanningStatus"
-              class="text-gray-600 text-sm md:text-base font-medium"
+              class="text-xs sm:text-sm md:text-base text-gray-600 font-medium"
             >
               {{ scanningStatus }}
             </p>
@@ -281,13 +287,13 @@
               :disabled="
                 (activeTab === 'upload' && !uploadedImage) || isLoading
               "
-              class="group relative inline-flex items-center justify-center px-8 py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#F97474] to-[#ff5757] text-white transition-all duration-300 ease-out hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 overflow-hidden rounded-full bg-gradient-to-r from-[#f6339a] to-[#db2777] text-white transition-all duration-300 ease-out hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <span
-                class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff5757] group-hover:translate-x-0 ease"
+                class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-pink-500 group-hover:translate-x-0 ease"
               >
                 <svg
-                  class="w-6 h-6"
+                  class="w-5 h-5 sm:w-6 sm:h-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -315,17 +321,17 @@
     <Teleport to="body">
       <div
         v-if="isRecommendationModalOpen && currentRecommendation"
-        class="fixed inset-0 z-[10000] flex items-center justify-center"
+        class="fixed inset-0 z-[10000] flex items-center justify-center p-4"
       >
         <div
-          class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 w-full max-w-7xl shadow-2xl relative h-5/6"
+          class="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-7xl shadow-2xl relative h-[90vh] sm:h-5/6"
         >
           <button
             @click="closeRecommendationModal"
-            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-300 p-2 hover:bg-gray-100 rounded-full"
+            class="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors duration-300 p-1.5 sm:p-2 hover:bg-gray-100 rounded-full z-20"
           >
             <svg
-              class="w-6 h-6"
+              class="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -339,117 +345,196 @@
             </svg>
           </button>
 
-          <div class="text-center mb-6">
+          <div class="text-center mb-4 sm:mb-6">
             <h4
-              class="text-3xl font-bold bg-gradient-to-r from-[#F97474] to-[#ff5757] bg-clip-text text-transparent"
+              class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#f6339a] to-[#db2777] bg-clip-text text-transparent"
             >
               Recommended Hairstyles for {{ detectedFaceShape }} Face Shape
             </h4>
-            <p class="text-gray-600 mt-2">
+            <p
+              class="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2"
+            >
               These styles are perfectly suited for your unique facial features
             </p>
           </div>
 
-          <div class="relative overflow-hidden px-12 h-4/5">
-            <!-- Carousel Container -->
-            <div class="relative h-full flex items-center">
-              <div
-                class="flex transition-transform duration-500 ease-in-out"
-                :style="{
-                  transform: `translateX(calc(50% - ${
-                    (currentRecommendationIndex + 0.5) * 33.333
-                  }%))`,
-                }"
-              >
-                <div
-                  v-for="(recommendation, index) in recommendations"
-                  :key="recommendation.id"
-                  class="w-1/3 flex-shrink-0 px-4 transition-all duration-500"
-                  :class="{
-                    'scale-100 opacity-100 z-10':
-                      index === currentRecommendationIndex,
-                    'scale-90 opacity-50': index !== currentRecommendationIndex,
-                  }"
-                >
-                  <div
-                    class="bg-white rounded-2xl shadow-xl overflow-hidden h-full"
-                  >
-                    <div class="relative" style="aspect-ratio: 3/4">
-                      <img
-                        :src="recommendation.image"
-                        :alt="recommendation.name"
-                        class="w-full h-full object-cover"
-                      />
-                      <div
-                        class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
-                      ></div>
-                    </div>
-                    <div class="p-6 bg-gradient-to-b from-white to-pink-50">
-                      <h5 class="text-2xl font-bold text-[#ff5757] mb-3">
-                        {{ recommendation.name }}
-                      </h5>
-                      <p class="text-gray-700 text-base leading-relaxed">
-                        {{ recommendation.description }}
-                      </p>
+          <div class="h-[calc(100%-8rem)] relative">
+            <!-- Single Card View (Mobile) -->
+            <div class="block sm:hidden h-full">
+              <div class="h-full flex flex-col">
+                <div class="flex-1 relative">
+                  <div class="h-full">
+                    <div
+                      class="bg-white rounded-xl shadow-xl overflow-hidden h-full flex flex-col"
+                    >
+                      <div class="relative flex-1" style="min-height: 60%">
+                        <img
+                          :src="currentRecommendation.image"
+                          :alt="currentRecommendation.name"
+                          class="w-full h-full object-cover"
+                        />
+                        <div
+                          class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
+                        ></div>
+                      </div>
+                      <div class="p-4 bg-gradient-to-b from-white to-pink-50">
+                        <h5 class="text-xl font-bold text-[#db2777] mb-2">
+                          {{ currentRecommendation.name }}
+                        </h5>
+                        <p class="text-gray-700 text-sm leading-relaxed">
+                          {{ currentRecommendation.description }}
+                        </p>
+                      </div>
                     </div>
                   </div>
+
+                  <!-- Mobile Navigation Buttons -->
+                  <button
+                    @click="showPreviousRecommendation"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 text-[#f6339a] rounded-full shadow-lg transition-all duration-300 disabled:opacity-30 z-10"
+                    :disabled="currentRecommendationIndex === 0"
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    @click="showNextRecommendation"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 text-[#f6339a] rounded-full shadow-lg transition-all duration-300 disabled:opacity-30 z-10"
+                    :disabled="
+                      currentRecommendationIndex === recommendations.length - 1
+                    "
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      ></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <!-- Navigation Arrows -->
-            <button
-              @click="showPreviousRecommendation"
-              class="absolute left-0 top-1/2 -translate-y-1/2 p-2 text-[#F97474] hover:bg-pink-50 rounded-full transition-all duration-300 disabled:opacity-30"
-              :disabled="currentRecommendationIndex === 0"
-            >
-              <svg
-                class="w-10 h-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                ></path>
-              </svg>
-            </button>
-            <button
-              @click="showNextRecommendation"
-              class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#F97474] hover:bg-pink-50 rounded-full transition-all duration-300 disabled:opacity-30"
-              :disabled="
-                currentRecommendationIndex === recommendations.length - 1
-              "
-            >
-              <svg
-                class="w-10 h-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                ></path>
-              </svg>
-            </button>
+            <!-- Desktop Carousel -->
+            <div class="hidden sm:block h-full px-12">
+              <div class="relative h-full flex items-center">
+                <div
+                  class="flex transition-transform duration-500 ease-in-out"
+                  :style="{
+                    transform: `translateX(calc(50% - ${
+                      (currentRecommendationIndex + 0.5) * (100 / 3)
+                    }%))`,
+                  }"
+                >
+                  <div
+                    v-for="(recommendation, index) in recommendations"
+                    :key="recommendation.id"
+                    class="w-1/3 flex-shrink-0 px-4 transition-all duration-500"
+                    :class="{
+                      'scale-100 opacity-100 z-10':
+                        index === currentRecommendationIndex,
+                      'scale-90 opacity-50':
+                        index !== currentRecommendationIndex,
+                    }"
+                  >
+                    <div
+                      class="bg-white rounded-2xl shadow-xl overflow-hidden h-full"
+                    >
+                      <div class="relative" style="aspect-ratio: 3/4">
+                        <img
+                          :src="recommendation.image"
+                          :alt="recommendation.name"
+                          class="w-full h-full object-cover"
+                        />
+                        <div
+                          class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
+                        ></div>
+                      </div>
+                      <div class="p-6 bg-gradient-to-b from-white to-pink-50">
+                        <h5 class="text-2xl font-bold text-[#db2777] mb-3">
+                          {{ recommendation.name }}
+                        </h5>
+                        <p class="text-gray-700 text-base leading-relaxed">
+                          {{ recommendation.description }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Desktop Navigation Arrows -->
+                <button
+                  @click="showPreviousRecommendation"
+                  class="absolute -left-2 top-1/2 -translate-y-1/2 p-2 text-[#f6339a] hover:bg-pink-500 rounded-full transition-all duration-300 disabled:opacity-30"
+                  :disabled="currentRecommendationIndex === 0"
+                >
+                  <svg
+                    class="w-10 h-10"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  @click="showNextRecommendation"
+                  class="absolute -right-2 top-1/2 -translate-y-1/2 p-2 text-[#f6339a] hover:bg-pink-500 rounded-full transition-all duration-300 disabled:opacity-30"
+                  :disabled="
+                    currentRecommendationIndex === recommendations.length - 1
+                  "
+                >
+                  <svg
+                    class="w-10 h-10"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Navigation Dots -->
-          <div class="flex justify-center mt-6 gap-3">
+          <div class="flex justify-center mt-4 gap-2">
             <button
               v-for="(_, index) in recommendations"
               :key="index"
               @click="currentRecommendationIndex = index"
-              class="w-4 h-4 rounded-full transition-all duration-300"
+              class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300"
               :class="[
                 index === currentRecommendationIndex
-                  ? 'bg-[#F97474] scale-125'
+                  ? 'bg-[#f6339a] scale-125'
                   : 'bg-gray-300 hover:bg-gray-400',
               ]"
             ></button>
@@ -559,8 +644,8 @@ const drawFaceGuide = (canvas) => {
     centerX + 100,
     height - 20
   );
-  textGradient.addColorStop(0, "#F97474");
-  textGradient.addColorStop(1, "#ff5757");
+  textGradient.addColorStop(0, "#f6339a");
+  textGradient.addColorStop(1, "#db2777");
 
   ctx.fillStyle = textGradient;
   ctx.font = "600 16px 'Inter', sans-serif";
@@ -641,8 +726,8 @@ const drawFaceShape = (ctx, detection) => {
     xcenter + width / 2,
     ycenter + height / 2
   );
-  gradient.addColorStop(0, "#F97474");
-  gradient.addColorStop(1, "#ff5757");
+  gradient.addColorStop(0, "#f6339a");
+  gradient.addColorStop(1, "#db2777");
 
   ctx.strokeStyle = gradient;
   ctx.lineWidth = 3;
@@ -664,8 +749,8 @@ const drawFaceShape = (ctx, detection) => {
     xcenter + width / 2,
     ycenter - height / 2 - 20
   );
-  textGradient.addColorStop(0, "#F97474");
-  textGradient.addColorStop(1, "#ff5757");
+  textGradient.addColorStop(0, "#f6339a");
+  textGradient.addColorStop(1, "#db2777");
 
   ctx.fillStyle = textGradient;
   ctx.font = "600 20px 'Inter', sans-serif";
@@ -893,7 +978,10 @@ import { watch } from "vue";
 }
 
 .scan-button {
-  min-width: 200px;
+  min-width: 160px;
+  @media (min-width: 640px) {
+    min-width: 200px;
+  }
 }
 
 @keyframes gradient {
